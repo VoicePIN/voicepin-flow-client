@@ -5,6 +5,7 @@ import com.voicepin.flow.client.calls.*;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.request.*;
 import com.voicepin.flow.client.result.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,8 @@ public class FlowClient {
         Call<VerifyInitResult> initCall = new VerifyInitCall(initReq);
         VerifyInitResult initResult = caller.call(initCall);
 
-        VerifyStreamRequest streamReq = new VerifyStreamRequest(initResult.getSpeechPath(), verifyRequest.getSpeechStream());
+        VerifyStreamRequest streamReq = new VerifyStreamRequest(initResult.getSpeechPath(),
+                verifyRequest.getSpeechStream());
         Call<VerifyStreamResult> streamCall = new VerifyStreamCall(streamReq);
         VerifyStreamResult streamResult = caller.call(streamCall);
 

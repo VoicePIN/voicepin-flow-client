@@ -8,6 +8,7 @@ import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.result.EnrollResult;
 import com.voicepin.flow.client.util.BodyPartFactory;
+
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import javax.ws.rs.client.Entity;
@@ -42,7 +43,8 @@ public class EnrollCall implements Call<EnrollResult> {
     @Override
     public Entity<?> getEntity() {
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-        formDataMultiPart.bodyPart(BodyPartFactory.createOctetStreamBodyPart(RestFieldName.MULTIPART_REQUEST_RECORDING, req.getSpeechStream()));
+        formDataMultiPart.bodyPart(BodyPartFactory.createOctetStreamBodyPart(RestFieldName.MULTIPART_REQUEST_RECORDING,
+                req.getSpeechStream()));
         formDataMultiPart.field(RestFieldName.MULTIPART_REQUEST_VOICEPRINT_ID, req.getVoiceprintId());
         return Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
     }

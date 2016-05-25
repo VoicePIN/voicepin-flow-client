@@ -3,8 +3,9 @@ package com.voicepin.flow.client.util;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
-import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author mckulpa

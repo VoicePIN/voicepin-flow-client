@@ -1,15 +1,16 @@
 package com.voicepin.flow.client;
 
 
+import static javax.ws.rs.core.Response.Status;
+
 import com.voicepin.flow.client.exception.FlowServerException;
 
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response;
 
 /**
  * @author mckulpa, kodrzywolek
@@ -31,7 +32,7 @@ public class ExceptionMapper {
     // Add new definitions here if you wish to add more exceptions to mapper
     private List<Definition> getDefinitions() {
         List<Definition> definitions = new ArrayList<>();
-        //TODO add statuses
+        // TODO add statuses
         return definitions;
     }
 
