@@ -1,15 +1,5 @@
 package com.voicepin.flow.client;
 
-import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.exception.FlowClientException;
-import com.voicepin.flow.client.exception.FlowConnectionException;
-
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.RequestEntityProcessing;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -17,6 +7,16 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.voicepin.flow.client.calls.Call;
+import com.voicepin.flow.client.exception.FlowClientException;
+import com.voicepin.flow.client.exception.FlowConnectionException;
 
 /**
  * Calls service request and returns transformed result or exception if an error occurred.
@@ -66,10 +66,8 @@ public class Caller {
             LOGGER.debug(response.toString());
             LOGGER.debug("Response body: " + response.toString());
 
-            final ParsedResponse<T> parsedResponse = call.parse(response);
 
-
-            return parsedResponse.buildResult();
+            return call.parse(response);
         } catch (final ProcessingException e) {
             throw new FlowConnectionException(e);
         }

@@ -1,19 +1,18 @@
 package com.voicepin.flow.client.calls;
 
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+
 import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.ParsedResponse;
 import com.voicepin.flow.client.RestFieldName;
 import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.result.EnrollResult;
 import com.voicepin.flow.client.util.BodyPartFactory;
-
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  * @author mckulpa, kodrzywolek
@@ -50,7 +49,7 @@ public class EnrollCall implements Call<EnrollResult> {
     }
 
     @Override
-    public ParsedResponse<EnrollResult> parse(Response response) throws FlowParseException {
-        return EnrollResult::new;
+    public EnrollResult parse(Response response) throws FlowParseException {
+        return new EnrollResult();
     }
 }

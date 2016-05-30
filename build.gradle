@@ -1,0 +1,30 @@
+apply plugin: 'java'
+
+ext{
+    jerseyVersion= '2.19'
+    log4jVersion = '2.5'
+
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies{
+
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'com.sun.xml.ws', name: 'jaxws-rt', version: '2.2.5'
+
+    compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: jerseyVersion
+    compile group: 'org.glassfish.jersey.core', name: 'jersey-common', version: jerseyVersion
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: jerseyVersion
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: jerseyVersion
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: jerseyVersion
+
+    // logging
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.14'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version:log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:log4jVersion
+}
+
