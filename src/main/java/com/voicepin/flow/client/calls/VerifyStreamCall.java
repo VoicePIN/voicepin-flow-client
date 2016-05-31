@@ -1,21 +1,20 @@
 package com.voicepin.flow.client.calls;
 
 
-import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.ParsedResponse;
-import com.voicepin.flow.client.RestFieldName;
-import com.voicepin.flow.client.exception.FlowParseException;
-import com.voicepin.flow.client.request.VerifyStreamRequest;
-import com.voicepin.flow.client.result.VerifyStreamResult;
-import com.voicepin.flow.client.util.BodyPartFactory;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import com.voicepin.flow.client.Method;
+import com.voicepin.flow.client.RestFieldName;
+import com.voicepin.flow.client.exception.FlowParseException;
+import com.voicepin.flow.client.request.VerifyStreamRequest;
+import com.voicepin.flow.client.result.VerifyStreamResult;
+import com.voicepin.flow.client.util.BodyPartFactory;
 
 /**
  * @author kodrzywolek
@@ -54,7 +53,7 @@ public class VerifyStreamCall implements Call<VerifyStreamResult> {
     }
 
     @Override
-    public ParsedResponse<VerifyStreamResult> parse(Response response) throws FlowParseException {
-        return () -> response.readEntity(VerifyStreamResult.class);
+    public VerifyStreamResult parse(Response response) throws FlowParseException {
+        return response.readEntity(VerifyStreamResult.class);
     }
 }
