@@ -1,60 +1,57 @@
 package com.voicepin.flow.client;
 
 
-import static javax.ws.rs.core.Response.Status;
-
-import com.voicepin.flow.client.exception.FlowServerException;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.Collection;
 import javax.ws.rs.core.Response;
+
+import com.voicepin.flow.client.exception.AudioTooShortException;
+import com.voicepin.flow.client.exception.FlowServerException;
+import com.voicepin.flow.client.exception.InvalidAudioException;
+import com.voicepin.flow.client.exception.VoiceprintNotEnrolled;
 
 /**
  * @author mckulpa, kodrzywolek
  */
 public class ExceptionMapper {
-    private Map<Integer, Definition> map = new HashMap<>();
+
+    private final Collection<Definition> definitions = new ArrayList<>();
 
     public ExceptionMapper() {
-        for (Definition definition : getDefinitions()) {
-            for (Integer code : definition.getCodes()) {
-                Definition oldValue = map.put(code, definition);
-                if (oldValue != null) {
-                    throw new RuntimeException("Tried to map two exceptions to the same error code (" + code + ")");
-                }
+
+        definitions.add(code -> {
+            if (code == 430) {
+                throw new InvalidAudioException(code, "Provided audio is incorrect");
             }
+        });
+
+        definitions.add(code -> {
+            if (code == 431) {
+                throw new AudioTooShortException(code, "Provided audio is too short");
+            }
+        });
+
+        definitions.add(code -> {
+            if (code == 420) {
+                throw new VoiceprintNotEnrolled(code, "Voiceprint is not enrolled");
+            }
+        });
+    }
+
+    public void validate(final Response response) throws FlowServerException {
+        final int statusCode = response.getStatus();
+        if (statusCode != Response.Status.OK.getStatusCode()) {
+            for (final Definition def : definitions) {
+                def.apply(statusCode);
+            }
+
+            throw new FlowServerException(statusCode, response.readEntity(String.class));
         }
     }
 
-    // Add new definitions here if you wish to add more exceptions to mapper
-    private List<Definition> getDefinitions() {
-        List<Definition> definitions = new ArrayList<>();
-        // TODO add statuses
-        return definitions;
+    @FunctionalInterface
+    interface Definition {
+        void apply(int code) throws FlowServerException;
     }
 
-    public void validate(Response response) throws FlowServerException {
-        int statusCode = response.getStatus();
-
-        if (statusCode != Status.OK.getStatusCode()) {
-            Definition definition = map.get(statusCode);
-            FlowServerException e;
-            if (definition != null) {
-                e = definition.getException(statusCode);
-            } else {
-                e = new FlowServerException(statusCode, response.readEntity(String.class));
-            }
-
-            throw e;
-        }
-    }
-
-    public interface Definition {
-        List<Integer> getCodes();
-
-        FlowServerException getException(int code) throws FlowServerException;
-    }
 }

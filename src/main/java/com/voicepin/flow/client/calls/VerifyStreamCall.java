@@ -6,8 +6,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.voicepin.flow.client.Method;
 import com.voicepin.flow.client.RestFieldName;
@@ -21,11 +19,9 @@ import com.voicepin.flow.client.util.BodyPartFactory;
  */
 public class VerifyStreamCall implements Call<VerifyStreamResult> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VerifyStreamCall.class);
-    private static final String CHUNK_DELIMITER = "\n";
     private final VerifyStreamRequest req;
 
-    public VerifyStreamCall(VerifyStreamRequest verifyStreamRequest) {
+    public VerifyStreamCall(final VerifyStreamRequest verifyStreamRequest) {
         this.req = verifyStreamRequest;
     }
 
@@ -46,14 +42,14 @@ public class VerifyStreamCall implements Call<VerifyStreamResult> {
 
     @Override
     public Entity<?> getEntity() {
-        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+        final FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         formDataMultiPart.bodyPart(BodyPartFactory.createOctetStreamBodyPart(RestFieldName.MULTIPART_REQUEST_RECORDING,
                 req.getSpeechStream()));
         return Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
     }
 
     @Override
-    public VerifyStreamResult parse(Response response) throws FlowParseException {
+    public VerifyStreamResult parse(final Response response) throws FlowParseException {
         return response.readEntity(VerifyStreamResult.class);
     }
 }
