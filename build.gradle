@@ -1,21 +1,36 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'pl.allegro.tech.build.axion-release' version '1.3.4'
+}
 
-ext{
-    jerseyVersion= '2.19'
+import org.ajoberstar.grgit.* //available from axion-release
+
+group = 'com.voicepin.flow'
+version = scmVersion.version
+
+jar {
+    manifest {
+        attributes("Specification-Title": "VoicePIN Flow REST Client",
+                "Implementation-Version": version,
+                "Implementation-Revision": getCommitHash())
+    }
+}
+
+ext {
+    jerseyVersion = '2.19'
     log4jVersion = '2.5'
-
 }
 
 repositories {
     mavenCentral()
 }
 
-dependencies{
-
+dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'com.sun.xml.ws', name: 'jaxws-rt', version: '2.2.5'
 
+    // jersey
     compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: jerseyVersion
     compile group: 'org.glassfish.jersey.core', name: 'jersey-common', version: jerseyVersion
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: jerseyVersion
@@ -24,12 +39,20 @@ dependencies{
 
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.14'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version:log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
 
     // spock
-    compile "org.codehaus.groovy:groovy-all:2.4.1"
+    testCompile "org.codehaus.groovy:groovy-all:2.4.1"
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 }
 
+task commitHash << {
+    print getCommitHash()
+}
+
+def getCommitHash() {
+    def repo = Grgit.open(project.file('.'))
+    return repo.log(maxCommits: 1).first().id
+}
