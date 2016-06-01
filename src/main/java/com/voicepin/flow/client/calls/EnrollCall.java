@@ -5,14 +5,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-
 import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.RestFieldName;
 import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.result.EnrollResult;
-import com.voicepin.flow.client.util.BodyPartFactory;
 
 /**
  * @author mckulpa, kodrzywolek
@@ -20,7 +16,7 @@ import com.voicepin.flow.client.util.BodyPartFactory;
 public class EnrollCall implements Call<EnrollResult> {
     private final EnrollRequest req;
 
-    public EnrollCall(EnrollRequest enrollRequest) {
+    public EnrollCall(final EnrollRequest enrollRequest) {
         this.req = enrollRequest;
     }
 
@@ -31,25 +27,21 @@ public class EnrollCall implements Call<EnrollResult> {
 
     @Override
     public String getPath() {
-        return "voiceprint/" + req.getVoiceprintId() + "/enrollment_file";
+        return "voiceprint/" + req.getVoiceprintId() + "/enrollment";
     }
 
     @Override
     public boolean isChunked() {
-        return false;
+        return true;
     }
 
     @Override
     public Entity<?> getEntity() {
-        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-        formDataMultiPart.bodyPart(BodyPartFactory.createOctetStreamBodyPart(RestFieldName.MULTIPART_REQUEST_RECORDING,
-                req.getSpeechStream()));
-        formDataMultiPart.field(RestFieldName.MULTIPART_REQUEST_VOICEPRINT_ID, req.getVoiceprintId());
-        return Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
+        return Entity.entity(req.getSpeechStream(), MediaType.APPLICATION_OCTET_STREAM);
     }
 
     @Override
-    public EnrollResult parse(Response response) throws FlowParseException {
+    public EnrollResult parse(final Response response) throws FlowParseException {
         return new EnrollResult();
     }
 }
