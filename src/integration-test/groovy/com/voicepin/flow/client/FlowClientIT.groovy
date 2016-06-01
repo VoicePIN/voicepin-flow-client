@@ -23,30 +23,29 @@ class FlowClientIT extends Specification {
         AddVoiceprintRequest request = new AddVoiceprintRequest()
         def enrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1.wav"))
 
-        when: " adding voiceprint"
+        when: "adding voiceprint"
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint(request)
 
-        then: "new voiceprint id is returned"
+        then: "new voiceprint ID is returned"
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
         voiceprintId != null
 
         when: "enrolling voiceprint"
         EnrollRequest enrollRequest = new EnrollRequest(voiceprintId, enrollStream)
-
         client.enroll(enrollRequest)
-        then:
+
+        then: "OK is returned"
         notThrown(Exception)
 
         when: "verifying voiceprint"
         def verifyStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_2.wav"))
-
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
         VerifyResult verifyResult = client.verify(verifyRequest)
 
         then: "decision is returned"
         verifyResult.getDecision() != null
         verifyResult.getScore() != null
-        println "decision: "+ verifyResult.getDecision()
+        println "decision: " + verifyResult.getDecision()
         println "score: " + verifyResult.getScore()
     }
 
