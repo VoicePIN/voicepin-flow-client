@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration level="WARN" monitorInterval="5">
+
+    <Properties>
+        <Property name="default.pattern">%d{yyyy-MM-dd HH:mm:ss,SSS} [%t] %-5p %c{1} - %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default.pattern}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+
+        <!-- VoicePin packages log in DEBUG level -->
+        <Logger name="com.voicepin" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Others packages log in INFO level -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
