@@ -10,7 +10,6 @@ public class VerifyResult {
     private String decision;
 
     public VerifyResult() {
-
     }
 
     public VerifyResult(Integer score, String decision) {
@@ -40,5 +39,14 @@ public class VerifyResult {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "VerifyResult{" +
+                "score=" + score +
+                ", status='" + status + '\'' +
+                ", decision='" + decision + '\'' +
+                '}';
     }
 }

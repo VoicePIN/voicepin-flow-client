@@ -41,6 +41,7 @@ public class AddVoiceprintCall implements Call<AddVoiceprintResult> {
 
     @Override
     public AddVoiceprintResult parse(Response response) throws FlowParseException {
+
         return new AddVoiceprintResult(response.readEntity(String.class));
     }
 }

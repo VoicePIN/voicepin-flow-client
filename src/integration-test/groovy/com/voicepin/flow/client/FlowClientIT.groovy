@@ -40,13 +40,36 @@ class FlowClientIT extends Specification {
         when: "verifying voiceprint"
         def verifyStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_2.wav"))
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
-        VerifyResult verifyResult = client.verify(verifyRequest)
+        VerifyStreamClient streamClient = client.verify(verifyRequest)
 
-        then: "decision is returned"
-        verifyResult.getDecision() != null
-        verifyResult.getScore() != null
-        println "decision: " + verifyResult.getDecision()
-        println "score: " + verifyResult.getScore()
+        boolean isRunning = true;
+        def finalResult;
+        streamClient.addListener(new VerifyListener() {
+
+            @Override
+            void onError(Throwable throwable) {
+                isRunning = false;
+            }
+
+            @Override
+            void onSuccess(VerifyResult verifyResult) {
+                isRunning = false;
+                finalResult = verifyResult;
+            }
+        })
+
+        while(isRunning){
+            VerifyResult verifyResult = streamClient.getCurrentResult();
+            println verifyResult
+            Thread.sleep(1000);
+        }
+
+        then: "final decision is returned"
+        finalResult!=null
+        finalResult.getDecision() != null
+        finalResult.getScore() != null
+        println "decision: " + finalResult.getDecision()
+        println "score: " + finalResult.getScore()
     }
 
 }
