@@ -44,7 +44,7 @@ dependencies {
 
 
     // logging
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.14' ta
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.14'
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
