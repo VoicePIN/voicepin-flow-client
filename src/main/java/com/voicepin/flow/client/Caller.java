@@ -1,5 +1,13 @@
 package com.voicepin.flow.client;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -10,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +46,45 @@ public class Caller {
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
+
+        webTarget = client.target(baseURL);
+        exceptionMapper = new ExceptionMapper();
+        invocationBuilderFactory = WebTarget::request;
+    }
+
+    protected Caller(final String baseURL, String username, String password)
+            throws NoSuchAlgorithmException, KeyManagementException {
+
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            }
+        }
+        };
+
+
+        SSLContext sc = SSLContext.getInstance("TLSv1.2");
+        System.setProperty("https.protocols", "TLSv1.2");
+        sc.init(null, trustAllCerts, null);
+
+        HostnameVerifier allHostsValid = (String hostname, SSLSession session) -> {
+            return true;
+        };
+
+        final Client client = ClientBuilder.newBuilder().sslContext(sc).hostnameVerifier(allHostsValid).build();
+        client.register(MultiPartFeature.class);
+        client.property(ClientProperties.READ_TIMEOUT, 100000);
+        client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
+
+
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+        client.register(feature);
 
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
