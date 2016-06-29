@@ -1,5 +1,19 @@
 package com.voicepin.flow.client;
 
+import com.voicepin.flow.client.calls.Call;
+import com.voicepin.flow.client.exception.FlowClientException;
+import com.voicepin.flow.client.exception.FlowConnectionException;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -115,11 +129,44 @@ public class Caller {
             LOGGER.debug(response.toString());
             LOGGER.debug("Response body: " + response.toString());
 
-
             return call.parse(response);
         } catch (final ProcessingException e) {
             throw new FlowConnectionException(e);
         }
+    }
+
+    public <T> CompletableFuture<T> asyncCall(final Call<T> call) {
+
+        final String path = call.getPath();
+        final String method = call.getMethod().toString();
+        final Entity<?> entity = call.getEntity();
+
+        final WebTarget callTarget = webTarget.path(path);
+        Builder request = invocationBuilderFactory.getInvocationBuilder(callTarget);
+        if (call.isChunked()) {
+            request = request.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);
+        } else {
+            request = request
+                    .property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+        }
+
+        LOGGER.debug("Sending {} async request to {}", method, callTarget.getUri());
+
+        Future<Response> futureResponse = request.async().method(method, entity);
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Response response = futureResponse.get();
+                exceptionMapper.validate(response);
+
+                LOGGER.debug(response.toString());
+                LOGGER.debug("Response body: " + response.toString());
+
+                return call.parse(response);
+            } catch (InterruptedException | ExecutionException | FlowClientException e) {
+                throw new IllegalStateException(e);
+            }
+        });
     }
 
     public void setInvocationBuilderFactory(final InvocationBuilderFactory invocationBuilderFactory) {
@@ -131,6 +178,7 @@ public class Caller {
     }
 
     public interface InvocationBuilderFactory {
+
         Builder getInvocationBuilder(WebTarget callTarget);
     }
 

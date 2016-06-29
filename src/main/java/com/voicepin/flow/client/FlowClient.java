@@ -1,5 +1,17 @@
 package com.voicepin.flow.client;
 
+import com.voicepin.flow.client.calls.AddVoiceprintCall;
+import com.voicepin.flow.client.calls.Call;
+import com.voicepin.flow.client.calls.EnrollCall;
+import com.voicepin.flow.client.calls.VerifyInitCall;
+import com.voicepin.flow.client.exception.FlowClientException;
+import com.voicepin.flow.client.request.AddVoiceprintRequest;
+import com.voicepin.flow.client.request.EnrollRequest;
+import com.voicepin.flow.client.request.VerifyInitRequest;
+import com.voicepin.flow.client.request.VerifyRequest;
+import com.voicepin.flow.client.result.AddVoiceprintResult;
+import com.voicepin.flow.client.result.EnrollResult;
+import com.voicepin.flow.client.result.VerifyInitResult;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -7,25 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.voicepin.flow.client.calls.AddVoiceprintCall;
-import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.calls.EnrollCall;
-import com.voicepin.flow.client.calls.VerifyInitCall;
-import com.voicepin.flow.client.calls.VerifyStreamCall;
-import com.voicepin.flow.client.exception.FlowClientException;
-import com.voicepin.flow.client.request.AddVoiceprintRequest;
-import com.voicepin.flow.client.request.EnrollRequest;
-import com.voicepin.flow.client.request.VerifyInitRequest;
-import com.voicepin.flow.client.request.VerifyRequest;
-import com.voicepin.flow.client.request.VerifyStreamRequest;
-import com.voicepin.flow.client.result.AddVoiceprintResult;
-import com.voicepin.flow.client.result.EnrollResult;
-import com.voicepin.flow.client.result.VerifyInitResult;
-import com.voicepin.flow.client.result.VerifyResult;
-import com.voicepin.flow.client.result.VerifyStreamResult;
-
 /**
- * @author kodrzywolek
+ * @author kodrzywolek, Lukasz Warzecha
  */
 public class FlowClient {
 
@@ -53,17 +48,13 @@ public class FlowClient {
         return caller.call(call);
     }
 
-    public VerifyResult verify(VerifyRequest verifyRequest) throws FlowClientException {
+    public VerifyStreamClient verify(VerifyRequest verifyRequest) throws FlowClientException {
+
         VerifyInitRequest initReq = new VerifyInitRequest(verifyRequest.getVoiceprintId());
         Call<VerifyInitResult> initCall = new VerifyInitCall(initReq);
         VerifyInitResult initResult = caller.call(initCall);
 
-        VerifyStreamRequest streamReq = new VerifyStreamRequest(initResult.getSpeechPath(),
-                verifyRequest.getSpeechStream());
-        Call<VerifyStreamResult> streamCall = new VerifyStreamCall(streamReq);
-        VerifyStreamResult streamResult = caller.call(streamCall);
-
-        return new VerifyResult(streamResult.getScore(), streamResult.getDecision());
+        return new VerifyStreamClient(caller, initResult, verifyRequest.getSpeechStream());
     }
 
 }
