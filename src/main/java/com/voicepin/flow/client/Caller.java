@@ -55,17 +55,18 @@ public class Caller {
     protected Caller(final String baseURL, String username, String password)
             throws NoSuchAlgorithmException, KeyManagementException {
 
-        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
 
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
 
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            }
-        }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }
         };
 
 
