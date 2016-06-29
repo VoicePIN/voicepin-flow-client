@@ -1,22 +1,11 @@
 package com.voicepin.flow.client;
 
-import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.exception.FlowClientException;
-import com.voicepin.flow.client.exception.FlowConnectionException;
-
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.RequestEntityProcessing;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;

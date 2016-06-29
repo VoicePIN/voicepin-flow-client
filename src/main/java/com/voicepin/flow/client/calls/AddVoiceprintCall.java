@@ -1,12 +1,12 @@
 package com.voicepin.flow.client.calls;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
 import com.voicepin.flow.client.Method;
 import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.AddVoiceprintRequest;
 import com.voicepin.flow.client.result.AddVoiceprintResult;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 
 /**
  * @author kodrzywolek
