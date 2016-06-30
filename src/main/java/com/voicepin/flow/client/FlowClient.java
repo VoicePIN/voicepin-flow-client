@@ -1,11 +1,5 @@
 package com.voicepin.flow.client;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.voicepin.flow.client.calls.AddVoiceprintCall;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.calls.EnrollCall;
@@ -19,6 +13,12 @@ import com.voicepin.flow.client.result.AddVoiceprintResult;
 import com.voicepin.flow.client.result.EnrollResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * @author kodrzywolek, Lukasz Warzecha
  */
@@ -31,12 +31,10 @@ public class FlowClient {
         caller = new Caller(baseURL);
     }
 
-
     public FlowClient(String baseURL, String username, String password)
             throws KeyManagementException, NoSuchAlgorithmException {
         caller = new Caller(baseURL, username, password);
     }
-
 
     public AddVoiceprintResult addVoiceprint(AddVoiceprintRequest addVoiceprintRequest) throws FlowClientException {
         Call<AddVoiceprintResult> call = new AddVoiceprintCall(addVoiceprintRequest);

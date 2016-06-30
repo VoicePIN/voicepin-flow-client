@@ -1,11 +1,23 @@
 package com.voicepin.flow.client;
 
+import com.voicepin.flow.client.calls.Call;
+import com.voicepin.flow.client.exception.FlowClientException;
+import com.voicepin.flow.client.exception.FlowConnectionException;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -19,47 +31,37 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.RequestEntityProcessing;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.exception.FlowClientException;
-import com.voicepin.flow.client.exception.FlowConnectionException;
-
 /**
  * Calls service request and returns transformed result or exception if an error occurred.
  *
  * @author mckulpa
  */
-public class Caller {
+class Caller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Caller.class);
-    private final WebTarget webTarget;
-    private ExceptionMapper exceptionMapper;
-    private InvocationBuilderFactory invocationBuilderFactory;
 
-    protected Caller(final String baseURL) {
+    private final WebTarget webTarget;
+    private final ExceptionMapper exceptionMapper;
+    private final InvocationBuilderFactory invocationBuilderFactory;
+
+    Caller(final String baseURL) {
 
         final Client client = ClientBuilder.newClient();
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
-
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
     }
 
-    protected Caller(final String baseURL, String username, String password)
+    Caller(final String baseURL, String username, String password)
             throws NoSuchAlgorithmException, KeyManagementException {
 
         TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
+
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
@@ -72,20 +74,16 @@ public class Caller {
                 }
         };
 
-
         SSLContext sc = SSLContext.getInstance("TLSv1.2");
         System.setProperty("https.protocols", "TLSv1.2");
         sc.init(null, trustAllCerts, null);
 
-        HostnameVerifier allHostsValid = (String hostname, SSLSession session) -> {
-            return true;
-        };
+        HostnameVerifier allHostsValid = (String hostname, SSLSession session) -> true;
 
         final Client client = ClientBuilder.newBuilder().sslContext(sc).hostnameVerifier(allHostsValid).build();
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
-
 
         HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
         client.register(feature);
@@ -95,7 +93,7 @@ public class Caller {
         invocationBuilderFactory = WebTarget::request;
     }
 
-    public <T> T call(final Call<T> call) throws FlowClientException {
+    <T> T call(final Call<T> call) throws FlowClientException {
         try {
             final String path = call.getPath();
             final String method = call.getMethod().toString();
@@ -124,7 +122,7 @@ public class Caller {
         }
     }
 
-    public <T> CompletableFuture<T> asyncCall(final Call<T> call) {
+    <T> CompletableFuture<T> asyncCall(final Call<T> call) {
 
         final String path = call.getPath();
         final String method = call.getMethod().toString();
@@ -158,15 +156,8 @@ public class Caller {
         });
     }
 
-    public void setInvocationBuilderFactory(final InvocationBuilderFactory invocationBuilderFactory) {
-        this.invocationBuilderFactory = invocationBuilderFactory;
-    }
-
-    public void setExceptionMapper(final ExceptionMapper exceptionMapper) {
-        this.exceptionMapper = exceptionMapper;
-    }
-
-    public interface InvocationBuilderFactory {
+    @FunctionalInterface
+    private interface InvocationBuilderFactory {
 
         Builder getInvocationBuilder(WebTarget callTarget);
     }

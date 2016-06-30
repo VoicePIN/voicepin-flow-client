@@ -1,16 +1,22 @@
 package com.voicepin.flow.client.data;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * @author mckulpa
  */
-public class SpeechStream extends InputStreamWrapper {
+public class SpeechStream extends InputStream {
+
+    private final InputStream underlyingInputStream;
+
     public SpeechStream(InputStream inputStream) {
-        super(inputStream);
+        this.underlyingInputStream = inputStream;
     }
 
-    public SpeechStream(byte[] data) {
-        super(data);
+    @Override
+    public int read() throws IOException {
+        return underlyingInputStream.read();
     }
+
 }
