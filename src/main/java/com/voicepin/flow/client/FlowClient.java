@@ -31,8 +31,7 @@ public class FlowClient {
         caller = new Caller(baseURL);
     }
 
-    public FlowClient(String baseURL, String username, String password)
-            throws KeyManagementException, NoSuchAlgorithmException {
+    public FlowClient(String baseURL, String username, String password){
         caller = new Caller(baseURL, username, password);
     }
 

@@ -56,12 +56,29 @@ class Caller {
         invocationBuilderFactory = WebTarget::request;
     }
 
-    Caller(final String baseURL, String username, String password)
-            throws NoSuchAlgorithmException, KeyManagementException {
+    Caller(final String baseURL, String username, String password) {
 
+        HostnameVerifier allHostsValid = (String hostname, SSLSession session) -> true;
+
+        SSLContext sc = setupSSLContext();
+        final Client client = ClientBuilder.newBuilder().sslContext(sc).hostnameVerifier(allHostsValid).build();
+        client.register(MultiPartFeature.class);
+        client.property(ClientProperties.READ_TIMEOUT, 100000);
+        client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
+
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+        client.register(feature);
+
+        webTarget = client.target(baseURL);
+        exceptionMapper = new ExceptionMapper();
+        invocationBuilderFactory = WebTarget::request;
+    }
+
+    private SSLContext setupSSLContext() {
+
+        SSLContext sc;
         TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
-
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
@@ -74,23 +91,14 @@ class Caller {
                 }
         };
 
-        SSLContext sc = SSLContext.getInstance("TLSv1.2");
-        System.setProperty("https.protocols", "TLSv1.2");
-        sc.init(null, trustAllCerts, null);
-
-        HostnameVerifier allHostsValid = (String hostname, SSLSession session) -> true;
-
-        final Client client = ClientBuilder.newBuilder().sslContext(sc).hostnameVerifier(allHostsValid).build();
-        client.register(MultiPartFeature.class);
-        client.property(ClientProperties.READ_TIMEOUT, 100000);
-        client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
-
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
-        client.register(feature);
-
-        webTarget = client.target(baseURL);
-        exceptionMapper = new ExceptionMapper();
-        invocationBuilderFactory = WebTarget::request;
+        try {
+            sc = SSLContext.getInstance("TLSv1.2");
+            System.setProperty("https.protocols", "TLSv1.2");
+            sc.init(null, trustAllCerts, null);
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
+        return sc;
     }
 
     <T> T call(final Call<T> call) throws FlowClientException {
