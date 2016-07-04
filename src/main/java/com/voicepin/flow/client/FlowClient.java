@@ -3,14 +3,17 @@ package com.voicepin.flow.client;
 import com.voicepin.flow.client.calls.AddVoiceprintCall;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.calls.EnrollCall;
+import com.voicepin.flow.client.calls.GetVoiceprintCall;
 import com.voicepin.flow.client.calls.VerifyInitCall;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.request.AddVoiceprintRequest;
 import com.voicepin.flow.client.request.EnrollRequest;
+import com.voicepin.flow.client.request.GetVoiceprintRequest;
 import com.voicepin.flow.client.request.VerifyInitRequest;
 import com.voicepin.flow.client.request.VerifyRequest;
 import com.voicepin.flow.client.result.AddVoiceprintResult;
 import com.voicepin.flow.client.result.EnrollResult;
+import com.voicepin.flow.client.result.GetVoiceprintResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
 
 import org.slf4j.Logger;
@@ -30,6 +33,11 @@ public class FlowClient {
 
     public AddVoiceprintResult addVoiceprint(AddVoiceprintRequest addVoiceprintRequest) throws FlowClientException {
         Call<AddVoiceprintResult> call = new AddVoiceprintCall(addVoiceprintRequest);
+        return caller.call(call);
+    }
+
+    public GetVoiceprintResult getVoiceprint(GetVoiceprintRequest getVoiceprintRequest) throws FlowClientException {
+        Call<GetVoiceprintResult> call = new GetVoiceprintCall(getVoiceprintRequest);
         return caller.call(call);
     }
 
