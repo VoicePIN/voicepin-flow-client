@@ -1,19 +1,17 @@
 package com.voicepin.flow.client.calls;
 
+import java.io.IOException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.voicepin.flow.client.Method;
 import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.VerifyResultRequest;
 import com.voicepin.flow.client.result.VerifyResult;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 
 /**
  * @author Lukasz Warzecha

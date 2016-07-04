@@ -16,6 +16,9 @@ import com.voicepin.flow.client.result.VerifyInitResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * @author kodrzywolek, Lukasz Warzecha
  */
@@ -26,6 +29,10 @@ public class FlowClient {
 
     public FlowClient(String baseURL) {
         caller = new Caller(baseURL);
+    }
+
+    public FlowClient(String baseURL, String username, String password){
+        caller = new Caller(baseURL, username, password);
     }
 
     public AddVoiceprintResult addVoiceprint(AddVoiceprintRequest addVoiceprintRequest) throws FlowClientException {
