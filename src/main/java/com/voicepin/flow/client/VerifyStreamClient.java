@@ -14,7 +14,10 @@ import com.voicepin.flow.client.result.VerifyStreamResult;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * Provides method for getting current result of verification process and setting listener on complete process.
+ * 
  * @author Lukasz Warzecha
+ *
  */
 public class VerifyStreamClient {
 
@@ -32,8 +35,7 @@ public class VerifyStreamClient {
     }
 
     /**
-     * Perfoms blocking operation which asks Voicepin Flow server for the current
-     * verification result
+     * Performs blocking operation, which asks Voicepin Flow server for the current verification result
      * 
      * @return current verification result
      */
@@ -44,8 +46,7 @@ public class VerifyStreamClient {
     }
 
     /**
-     * Adds listener for verification process. The listener will be called when process
-     * will end
+     * Adds listener for verification process. The listener will be called when process will end
      * 
      * @param verifyListener
      */
