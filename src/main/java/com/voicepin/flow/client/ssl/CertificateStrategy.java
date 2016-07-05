@@ -6,7 +6,7 @@ import javax.net.ssl.SSLContext;
 /**
  * @author mckulpa, Lukasz Warzecha
  */
-public interface SecureConnectionHelper {
+public interface CertificateStrategy {
 
     HostnameVerifier getHostnameVerifer();
 

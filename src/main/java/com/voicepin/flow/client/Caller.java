@@ -3,7 +3,7 @@ package com.voicepin.flow.client;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
-import com.voicepin.flow.client.ssl.SecureConnectionHelper;
+import com.voicepin.flow.client.ssl.CertificateStrategy;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.RequestEntityProcessing;
@@ -49,10 +49,10 @@ class Caller {
         invocationBuilderFactory = WebTarget::request;
     }
 
-    Caller(final String baseURL, String username, String password, SecureConnectionHelper secureConnectionHelper) {
+    Caller(final String baseURL, String username, String password, CertificateStrategy certificateStrategy) {
         final Client client = ClientBuilder.newBuilder()
-                .sslContext(secureConnectionHelper.getSSLContext())
-                .hostnameVerifier(secureConnectionHelper.getHostnameVerifer())
+                .sslContext(certificateStrategy.getSSLContext())
+                .hostnameVerifier(certificateStrategy.getHostnameVerifer())
                 .build();
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);

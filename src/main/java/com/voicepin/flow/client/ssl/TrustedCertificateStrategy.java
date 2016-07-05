@@ -9,7 +9,7 @@ import javax.net.ssl.SSLSession;
 /**
  * @author Lukasz Warzecha
  */
-public class DefaultConnectionHelper implements SecureConnectionHelper {
+public class TrustedCertificateStrategy implements CertificateStrategy {
 
     @Override
     public HostnameVerifier getHostnameVerifer() {

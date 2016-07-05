@@ -20,12 +20,12 @@ import javax.net.ssl.TrustManagerFactory;
  *
  * @author mckulpa, Lukasz Warzecha
  */
-public class CustomKeystoreConnectionHelper implements SecureConnectionHelper {
+public class PinnedCertificateStrategy implements CertificateStrategy {
 
     private final String keystoreResourcePath;
     private final String keystorePassword;
 
-    public CustomKeystoreConnectionHelper(String keystoreResourcePath, String keystorePassword) {
+    public PinnedCertificateStrategy(String keystoreResourcePath, String keystorePassword) {
         this.keystorePassword = keystorePassword;
         this.keystoreResourcePath = keystoreResourcePath;
     }

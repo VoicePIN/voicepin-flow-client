@@ -12,10 +12,10 @@ import com.voicepin.flow.client.request.VerifyRequest;
 import com.voicepin.flow.client.result.AddVoiceprintResult;
 import com.voicepin.flow.client.result.EnrollResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
-import com.voicepin.flow.client.ssl.CustomKeystoreConnectionHelper;
-import com.voicepin.flow.client.ssl.DefaultConnectionHelper;
-import com.voicepin.flow.client.ssl.SecureConnectionHelper;
-import com.voicepin.flow.client.ssl.UnsafeConnectionHelper;
+import com.voicepin.flow.client.ssl.PinnedCertificateStrategy;
+import com.voicepin.flow.client.ssl.TrustedCertificateStrategy;
+import com.voicepin.flow.client.ssl.CertificateStrategy;
+import com.voicepin.flow.client.ssl.AnyCertificateStrategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class FlowClient {
         private String username;
         private String password;
 
-        private SecureConnectionHelper connectionHelper = new DefaultConnectionHelper();
+        private CertificateStrategy connectionHelper = new TrustedCertificateStrategy();
 
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
@@ -101,7 +101,7 @@ public class FlowClient {
 
             this.username = username;
             this.password = password;
-            this.connectionHelper = new DefaultConnectionHelper();
+            this.connectionHelper = new TrustedCertificateStrategy();
             return this;
         }
 
@@ -112,7 +112,7 @@ public class FlowClient {
          * @return
          */
         public FlowClientBuilder acceptAllCertificates() {
-            this.connectionHelper = new UnsafeConnectionHelper();
+            this.connectionHelper = new AnyCertificateStrategy();
             return this;
         }
 
@@ -125,7 +125,7 @@ public class FlowClient {
          * @return
          */
         public FlowClientBuilder withKeystore(String keystorePath, String keystorePassword) {
-            this.connectionHelper = new CustomKeystoreConnectionHelper(keystorePath, keystorePassword);
+            this.connectionHelper = new PinnedCertificateStrategy(keystorePath, keystorePassword);
             return this;
         }
 

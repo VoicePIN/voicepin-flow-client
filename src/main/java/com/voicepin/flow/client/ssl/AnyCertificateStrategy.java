@@ -15,7 +15,7 @@ import javax.net.ssl.X509TrustManager;
  * 
  * @author mckulpa, Lukasz Warzecha
  */
-public class UnsafeConnectionHelper implements SecureConnectionHelper {
+public class AnyCertificateStrategy implements CertificateStrategy {
 
     @Override
     public HostnameVerifier getHostnameVerifer() {
