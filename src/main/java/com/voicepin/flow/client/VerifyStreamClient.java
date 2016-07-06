@@ -44,8 +44,8 @@ public class VerifyStreamClient {
     }
 
     /**
-     * Adds listener for verification process. The listener will be called when process
-     * will end
+     * Adds listener for verification process. The listener will be called at the end of
+     * the verification process
      * 
      * @param verifyListener
      */
