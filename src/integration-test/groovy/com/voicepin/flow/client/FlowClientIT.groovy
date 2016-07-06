@@ -5,8 +5,10 @@ import spock.lang.Specification
 import com.voicepin.flow.client.data.SpeechStream
 import com.voicepin.flow.client.request.AddVoiceprintRequest
 import com.voicepin.flow.client.request.EnrollRequest
+import com.voicepin.flow.client.request.GetVoiceprintRequest
 import com.voicepin.flow.client.request.VerifyRequest
 import com.voicepin.flow.client.result.AddVoiceprintResult
+import com.voicepin.flow.client.result.GetVoiceprintResult
 import com.voicepin.flow.client.result.VerifyResult
 
 class FlowClientIT extends Specification {
@@ -43,6 +45,15 @@ class FlowClientIT extends Specification {
         then: "OK is returned"
         notThrown(Exception)
 
+        when: "getting voiceprint"
+        GetVoiceprintRequest getVoiceprintRequest = new GetVoiceprintRequest(voiceprintId)
+        GetVoiceprintResult getVoiceprintResult = client.getVoiceprint(getVoiceprintRequest)
+
+        then: "voiceprint is enrolled"
+        println getVoiceprintResult
+        getVoiceprintResult.getId().equals(voiceprintId)
+        getVoiceprintResult.isEnrolled()
+
         when: "verifying voiceprint"
         def verifyStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_2.wav"))
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
@@ -64,14 +75,14 @@ class FlowClientIT extends Specification {
             }
         })
 
-        while(isRunning){
+        while (isRunning) {
             VerifyResult verifyResult = streamClient.getCurrentResult();
             println verifyResult
             Thread.sleep(1000);
         }
 
         then: "final decision is returned"
-        finalResult!=null
+        finalResult != null
         finalResult.getDecision() != null
         finalResult.getScore() != null
         println "decision: " + finalResult.getDecision()
