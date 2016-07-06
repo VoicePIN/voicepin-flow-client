@@ -3,9 +3,11 @@ package com.voicepin.flow.client;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
+import com.voicepin.flow.client.ssl.CertificateStrategy;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.RequestEntityProcessing;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +29,15 @@ import javax.ws.rs.core.Response;
  *
  * @author mckulpa
  */
-public class Caller {
+class Caller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Caller.class);
-    private final WebTarget webTarget;
-    private ExceptionMapper exceptionMapper;
-    private InvocationBuilderFactory invocationBuilderFactory;
 
-    protected Caller(final String baseURL) {
+    private final WebTarget webTarget;
+    private final ExceptionMapper exceptionMapper;
+    private final InvocationBuilderFactory invocationBuilderFactory;
+
+    Caller(final String baseURL) {
 
         final Client client = ClientBuilder.newClient();
         client.register(MultiPartFeature.class);
@@ -46,7 +49,24 @@ public class Caller {
         invocationBuilderFactory = WebTarget::request;
     }
 
-    public <T> T call(final Call<T> call) throws FlowClientException {
+    Caller(final String baseURL, String username, String password, CertificateStrategy certificateStrategy) {
+        final Client client = ClientBuilder.newBuilder()
+                .sslContext(certificateStrategy.getSSLContext())
+                .hostnameVerifier(certificateStrategy.getHostnameVerifer())
+                .build();
+        client.register(MultiPartFeature.class);
+        client.property(ClientProperties.READ_TIMEOUT, 100000);
+        client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
+
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+        client.register(feature);
+
+        webTarget = client.target(baseURL);
+        exceptionMapper = new ExceptionMapper();
+        invocationBuilderFactory = WebTarget::request;
+    }
+
+    <T> T call(final Call<T> call) throws FlowClientException {
         try {
             final String path = call.getPath();
             final String method = call.getMethod().toString();
@@ -75,7 +95,7 @@ public class Caller {
         }
     }
 
-    public <T> CompletableFuture<T> asyncCall(final Call<T> call) {
+    <T> CompletableFuture<T> asyncCall(final Call<T> call) {
 
         final String path = call.getPath();
         final String method = call.getMethod().toString();
@@ -109,15 +129,8 @@ public class Caller {
         });
     }
 
-    public void setInvocationBuilderFactory(final InvocationBuilderFactory invocationBuilderFactory) {
-        this.invocationBuilderFactory = invocationBuilderFactory;
-    }
-
-    public void setExceptionMapper(final ExceptionMapper exceptionMapper) {
-        this.exceptionMapper = exceptionMapper;
-    }
-
-    public interface InvocationBuilderFactory {
+    @FunctionalInterface
+    private interface InvocationBuilderFactory {
 
         Builder getInvocationBuilder(WebTarget callTarget);
     }

@@ -1,23 +1,23 @@
 package com.voicepin.flow.client;
 
-
-import java.util.ArrayList;
-import java.util.Collection;
-import javax.ws.rs.core.Response;
-
 import com.voicepin.flow.client.exception.AudioTooShortException;
 import com.voicepin.flow.client.exception.FlowServerException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
 import com.voicepin.flow.client.exception.VoiceprintNotEnrolled;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.ws.rs.core.Response;
+
 /**
  * @author mckulpa, kodrzywolek
  */
-public class ExceptionMapper {
+class ExceptionMapper {
 
     private final Collection<Definition> definitions = new ArrayList<>();
 
-    public ExceptionMapper() {
+    ExceptionMapper() {
 
         definitions.add(code -> {
             if (code == 430) {
@@ -50,7 +50,8 @@ public class ExceptionMapper {
     }
 
     @FunctionalInterface
-    interface Definition {
+    private interface Definition {
+
         void apply(int code) throws FlowServerException;
     }
 

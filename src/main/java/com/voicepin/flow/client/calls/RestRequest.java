@@ -1,11 +1,14 @@
-package com.voicepin.flow.client;
+package com.voicepin.flow.client.calls;
+
+import com.voicepin.flow.client.Method;
 
 import javax.ws.rs.client.Entity;
 
 /**
  * @author mckulpa
  */
-public interface RestRequest {
+interface RestRequest {
+
     Method getMethod();
 
     String getPath();

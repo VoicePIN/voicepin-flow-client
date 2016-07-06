@@ -42,16 +42,15 @@ dependencies {
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: jerseyVersion
     compile group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.4.1'
 
-
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.14'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
 
     // spock
     testCompile "org.codehaus.groovy:groovy-all:2.4.1"
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
 }
 
 task commitHash << {

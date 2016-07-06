@@ -17,7 +17,13 @@ class FlowClientIT extends Specification {
 
     def setup() {
         def url = "http://localhost:8081/voicepin-ti-server/v1/"
-        client = new FlowClient(url)
+        client = FlowClient.newBuilder(url).build();
+
+//        def url = "https://localhost:8443/voicepin-ti-server/v1/"
+//        client = FlowClient.newBuilder(url)
+//                .withHttps("test_deployment", "qwer")
+//                .withKeystore("/home/sch/voicepin.jks", "changeit")
+//                .build();
     }
 
     def "voiceprint lifecycle"() {
