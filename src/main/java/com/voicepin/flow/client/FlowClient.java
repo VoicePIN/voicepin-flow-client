@@ -15,15 +15,18 @@ import com.voicepin.flow.client.result.AddVoiceprintResult;
 import com.voicepin.flow.client.result.EnrollResult;
 import com.voicepin.flow.client.result.GetVoiceprintResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
+import com.voicepin.flow.client.ssl.AnyCertificateStrategy;
+import com.voicepin.flow.client.ssl.CertificateStrategy;
 import com.voicepin.flow.client.ssl.PinnedCertificateStrategy;
 import com.voicepin.flow.client.ssl.TrustedCertificateStrategy;
-import com.voicepin.flow.client.ssl.CertificateStrategy;
-import com.voicepin.flow.client.ssl.AnyCertificateStrategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Client for VoicePIN Flow REST API (Text Independent Biometric Voice Verification
+ * server)
+ * 
  * @author kodrzywolek, Lukasz Warzecha
  */
 public class FlowClient {
@@ -34,7 +37,7 @@ public class FlowClient {
 
     private FlowClient(FlowClientBuilder builder) {
         if (builder.username != null) {
-            this.caller = new Caller(builder.baseUrl, builder.username, builder.password, builder.connectionHelper);
+            this.caller = new Caller(builder.baseUrl, builder.username, builder.password, builder.certificateStrategy);
         } else {
             this.caller = new Caller(builder.baseUrl);
         }
@@ -65,9 +68,9 @@ public class FlowClient {
     }
 
     /**
-     * Creates new voice model using streamed recording. Sets it for this Voiceprint. The model will be used as a
-     * reference in any subsequent verifications. If the Voiceprint has already been enrolled, its preexisting model
-     * would be overwritten.
+     * Creates new voice model using streamed recording. Sets it for this Voiceprint. The
+     * model will be used as a reference in any subsequent verifications. If the
+     * Voiceprint has already been enrolled, its preexisting model would be overwritten.
      * 
      * @param enrollRequest request with voiceprint id and recording stream
      * @return
@@ -79,27 +82,27 @@ public class FlowClient {
     }
 
     /**
-     * Starts verification process on given Voiceprint with incoming stream. Verification process starts immediately
-     * (i.e. it does not wait for the whole stream to be uploaded).
+     * Starts verification process on given Voiceprint with incoming stream. Verification
+     * process starts immediately (i.e. it does not wait for the whole stream to be
+     * uploaded).
      *
      * @param verifyRequest
      * @return result client for getting results
      * @throws FlowClientException
      */
-    public VerifyStreamClient verify(VerifyRequest verifyRequest) throws FlowClientException {
+    public VerifyStream verify(VerifyRequest verifyRequest) throws FlowClientException {
 
         VerifyInitRequest initReq = new VerifyInitRequest(verifyRequest.getVoiceprintId());
         Call<VerifyInitResult> initCall = new VerifyInitCall(initReq);
         VerifyInitResult initResult = caller.call(initCall);
 
-        return new VerifyStreamClient(caller, initResult, verifyRequest.getSpeechStream());
+        return new VerifyStream(caller, initResult, verifyRequest.getSpeechStream());
     }
 
     /**
      * Creates builder for FlowClient.
      * 
-     * @param baseUrl url to the service eg.
-     *            http://flow.voicepin.com/voicepin-ti-server/v1/
+     * @param baseUrl url to the service eg. http://localhost:8081/voicepin-ti-server/v1/
      *
      * @return
      */
@@ -114,7 +117,7 @@ public class FlowClient {
         private String username;
         private String password;
 
-        private CertificateStrategy connectionHelper = new TrustedCertificateStrategy();
+        private CertificateStrategy certificateStrategy = new TrustedCertificateStrategy();
 
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
@@ -140,7 +143,7 @@ public class FlowClient {
 
             this.username = username;
             this.password = password;
-            this.connectionHelper = new TrustedCertificateStrategy();
+            this.certificateStrategy = new TrustedCertificateStrategy();
             return this;
         }
 
@@ -151,7 +154,7 @@ public class FlowClient {
          * @return
          */
         public FlowClientBuilder acceptAllCertificates() {
-            this.connectionHelper = new AnyCertificateStrategy();
+            this.certificateStrategy = new AnyCertificateStrategy();
             return this;
         }
 
@@ -164,7 +167,7 @@ public class FlowClient {
          * @return
          */
         public FlowClientBuilder withKeystore(String keystorePath, String keystorePassword) {
-            this.connectionHelper = new PinnedCertificateStrategy(keystorePath, keystorePassword);
+            this.certificateStrategy = new PinnedCertificateStrategy(keystorePath, keystorePassword);
             return this;
         }
 

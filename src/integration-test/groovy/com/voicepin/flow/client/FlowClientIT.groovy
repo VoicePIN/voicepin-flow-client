@@ -51,7 +51,7 @@ class FlowClientIT extends Specification {
         when: "verifying voiceprint"
         def verifyStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_2.wav"))
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
-        VerifyStreamClient streamClient = client.verify(verifyRequest)
+        VerifyStream streamClient = client.verify(verifyRequest)
 
         boolean isRunning = true;
         def finalResult;
