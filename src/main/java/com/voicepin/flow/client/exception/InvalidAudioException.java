@@ -7,7 +7,7 @@ public class InvalidAudioException extends FlowServerException {
 
     private static final long serialVersionUID = 1L;
 
-    public InvalidAudioException(int errorCode, String errorMessage) {
-        super(errorCode, errorMessage);
+    public InvalidAudioException(int errorCode) {
+        super(errorCode, "Provided audio is incorrect");
     }
 }

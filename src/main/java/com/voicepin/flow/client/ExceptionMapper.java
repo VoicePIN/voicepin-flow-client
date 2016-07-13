@@ -21,30 +21,30 @@ class ExceptionMapper {
 
         definitions.add(code -> {
             if (code == 430) {
-                throw new InvalidAudioException(code, "Provided audio is incorrect");
+                throw new InvalidAudioException(code);
             }
         });
 
         definitions.add(code -> {
             if (code == 431) {
-                throw new AudioTooShortException(code, "Provided audio is too short");
+                throw new AudioTooShortException(code);
             }
         });
 
         definitions.add(code -> {
             if (code == 420) {
-                throw new VoiceprintNotEnrolled(code, "Voiceprint is not enrolled");
+                throw new VoiceprintNotEnrolled(code);
             }
         });
     }
 
-    public void validate(final Response response) throws FlowServerException {
+    void validate(final Response response) throws FlowServerException {
         final int statusCode = response.getStatus();
+
         if (statusCode != Response.Status.OK.getStatusCode()) {
             for (final Definition def : definitions) {
                 def.apply(statusCode);
             }
-
             throw new FlowServerException(statusCode, response.readEntity(String.class));
         }
     }
@@ -53,6 +53,7 @@ class ExceptionMapper {
     private interface Definition {
 
         void apply(int code) throws FlowServerException;
+
     }
 
 }

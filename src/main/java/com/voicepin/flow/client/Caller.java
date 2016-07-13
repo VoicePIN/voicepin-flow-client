@@ -86,7 +86,6 @@ class Caller {
             final Response response = request.method(method, entity);
             exceptionMapper.validate(response);
 
-            LOGGER.debug(response.toString());
             LOGGER.debug("Response body: " + response.toString());
 
             return call.parse(response);

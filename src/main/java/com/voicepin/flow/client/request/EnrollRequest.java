@@ -1,6 +1,5 @@
 package com.voicepin.flow.client.request;
 
-
 import com.voicepin.flow.client.data.SpeechStream;
 
 /**
@@ -8,9 +7,8 @@ import com.voicepin.flow.client.data.SpeechStream;
  */
 public class EnrollRequest {
 
-    private SpeechStream speechStream;
-    private String voiceprintId;
-
+    private final SpeechStream speechStream;
+    private final String voiceprintId;
 
     public EnrollRequest(String voiceprintId, SpeechStream speechStream) {
         this.speechStream = speechStream;

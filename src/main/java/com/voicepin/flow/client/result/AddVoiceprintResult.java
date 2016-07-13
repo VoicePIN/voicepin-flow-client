@@ -5,7 +5,7 @@ package com.voicepin.flow.client.result;
  */
 public class AddVoiceprintResult {
 
-    private String voiceprintId;
+    private final String voiceprintId;
 
     public AddVoiceprintResult(String voiceprintId) {
         this.voiceprintId = voiceprintId;
