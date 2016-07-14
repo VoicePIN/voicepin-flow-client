@@ -14,17 +14,18 @@ import com.voicepin.flow.client.result.VerifyStreamResult;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Provides method for getting current result of verification process and setting listener on complete process.
+ * Provides current verification results (while still streaming) and accepts a final
+ * success/error callback.
  *
  * @author Lukasz Warzecha
  */
-public class VerifyStreamClient {
+public class VerificationProcess {
 
     private final Caller caller;
     private final VerifyInitResult initResult;
     private final CompletableFuture<VerifyStreamResult> futureResult;
 
-    VerifyStreamClient(Caller caller, VerifyInitResult initResult, SpeechStream speechStream) {
+    VerificationProcess(Caller caller, VerifyInitResult initResult, SpeechStream speechStream) {
         this.caller = caller;
         this.initResult = initResult;
 
@@ -34,9 +35,8 @@ public class VerifyStreamClient {
     }
 
     /**
-     * Perfoms blocking operation which asks Voicepin Flow server for the current
-     * verification result
-     * 
+     * Returns current result while speech streaming may still be in progress.
+     *
      * @return current verification result
      */
     public VerifyResult getCurrentResult() throws FlowClientException {
@@ -46,19 +46,22 @@ public class VerifyStreamClient {
     }
 
     /**
-     * Adds listener for verification process. The listener will be called at the end of
-     * the verification process
+     * Adds listener for verification process which will be called on final success or
+     * error.
      * 
-     * @param verifyListener
+     * @param verificationProcessListener
      */
-    public void addListener(VerifyListener verifyListener) {
+    // TODO - add additional method to the Listener which allows to listening for
+    // currentResults in given interval
+    public void addListener(VerificationProcessListener verificationProcessListener) {
 
         futureResult.whenComplete((streamResult, throwable) -> {
 
             if (streamResult == null) {
-                verifyListener.onError(throwable.getCause());
+                verificationProcessListener.onError(throwable.getCause());
             } else {
-                verifyListener.onSuccess(new VerifyResult(streamResult.getScore(), streamResult.getDecision()));
+                verificationProcessListener.onSuccess(new VerifyResult(streamResult.getScore(),
+                        streamResult.getDecision()));
             }
         });
 

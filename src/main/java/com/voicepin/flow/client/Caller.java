@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -27,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  * Calls service request and returns transformed result or exception if an error occurred.
  *
- * @author mckulpa
+ * @author mckulpa, Lukasz Warzecha
  */
 class Caller {
 
@@ -68,25 +67,11 @@ class Caller {
 
     <T> T call(final Call<T> call) throws FlowClientException {
         try {
-            final String path = call.getPath();
-            final String method = call.getMethod().toString();
-            final Entity<?> entity = call.getEntity();
+            Builder request = prepareRequest(call);
 
-            final WebTarget callTarget = webTarget.path(path);
-            Builder request = invocationBuilderFactory.getInvocationBuilder(callTarget);
-            if (call.isChunked()) {
-                request = request.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);
-            } else {
-                request = request
-                        .property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
-            }
-
-            LOGGER.debug("Sending {} request to {}", method, callTarget.getUri());
-
-            final Response response = request.method(method, entity);
+            final Response response = request.method(call.getMethod().toString(), call.getEntity());
             exceptionMapper.validate(response);
 
-            LOGGER.debug(response.toString());
             LOGGER.debug("Response body: " + response.toString());
 
             return call.parse(response);
@@ -97,22 +82,8 @@ class Caller {
 
     <T> CompletableFuture<T> asyncCall(final Call<T> call) {
 
-        final String path = call.getPath();
-        final String method = call.getMethod().toString();
-        final Entity<?> entity = call.getEntity();
-
-        final WebTarget callTarget = webTarget.path(path);
-        Builder request = invocationBuilderFactory.getInvocationBuilder(callTarget);
-        if (call.isChunked()) {
-            request = request.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);
-        } else {
-            request = request
-                    .property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
-        }
-
-        LOGGER.debug("Sending {} async request to {}", method, callTarget.getUri());
-
-        Future<Response> futureResponse = request.async().method(method, entity);
+        Builder request = prepareRequest(call);
+        Future<Response> futureResponse = request.async().method(call.getMethod().toString(), call.getEntity());
 
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -129,10 +100,28 @@ class Caller {
         });
     }
 
+    private <T> Builder prepareRequest(Call<T> call) {
+        final String path = call.getPath();
+        final WebTarget callTarget = webTarget.path(path);
+
+        LOGGER.trace("Creating {} request to {}", call.getMethod(), callTarget.getUri());
+
+        Builder request = invocationBuilderFactory.getInvocationBuilder(callTarget);
+        if (call.isChunked()) {
+            request = request.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);
+        } else {
+            request = request
+                    .property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+        }
+
+        return request;
+    }
+
     @FunctionalInterface
     private interface InvocationBuilderFactory {
 
         Builder getInvocationBuilder(WebTarget callTarget);
+
     }
 
 }

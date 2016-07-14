@@ -5,7 +5,7 @@ package com.voicepin.flow.client.request;
  */
 public class VerifyInitRequest {
 
-    private String voiceprintId;
+    private final String voiceprintId;
 
     public VerifyInitRequest(String voiceprintId) {
         this.voiceprintId = voiceprintId;

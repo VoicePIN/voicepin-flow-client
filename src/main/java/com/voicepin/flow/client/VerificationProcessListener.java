@@ -5,7 +5,7 @@ import com.voicepin.flow.client.result.VerifyResult;
 /**
  * @author Lukasz Warzecha
  */
-public interface VerifyListener {
+public interface VerificationProcessListener {
 
     void onError(Throwable throwable);
 

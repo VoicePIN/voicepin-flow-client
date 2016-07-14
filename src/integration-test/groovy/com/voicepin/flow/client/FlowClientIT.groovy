@@ -18,12 +18,6 @@ class FlowClientIT extends Specification {
     def setup() {
         def url = "http://localhost:8081/voicepin-ti-server/v1/"
         client = FlowClient.newBuilder(url).build();
-
-//        def url = "https://localhost:8443/voicepin-ti-server/v1/"
-//        client = FlowClient.newBuilder(url)
-//                .withHttps("test_deployment", "qwer")
-//                .withKeystore("/home/sch/voicepin.jks", "changeit")
-//                .build();
     }
 
     def "voiceprint lifecycle"() {
@@ -57,11 +51,11 @@ class FlowClientIT extends Specification {
         when: "verifying voiceprint"
         def verifyStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_2.wav"))
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
-        VerifyStreamClient streamClient = client.verify(verifyRequest)
+        VerificationProcess streamClient = client.verify(verifyRequest)
 
         boolean isRunning = true;
         def finalResult;
-        streamClient.addListener(new VerifyListener() {
+        streamClient.addListener(new VerificationProcessListener() {
 
             @Override
             void onError(Throwable throwable) {
