@@ -1,7 +1,6 @@
 package com.voicepin.flow.client.calls;
 
 import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.VerifyInitRequest;
 import com.voicepin.flow.client.result.VerifyInitResult;
 
@@ -40,7 +39,7 @@ public class VerifyInitCall implements Call<VerifyInitResult> {
     }
 
     @Override
-    public VerifyInitResult parse(Response response) throws FlowParseException {
+    public VerifyInitResult parse(Response response) {
         return response.readEntity(VerifyInitResult.class);
     }
 

@@ -1,7 +1,6 @@
 package com.voicepin.flow.client.calls;
 
 import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.exception.FlowParseException;
 import com.voicepin.flow.client.request.GetVoiceprintRequest;
 import com.voicepin.flow.client.result.GetVoiceprintResult;
 
@@ -45,7 +44,7 @@ public class GetVoiceprintCall implements Call<GetVoiceprintResult> {
     }
 
     @Override
-    public GetVoiceprintResult parse(Response response) throws FlowParseException {
+    public GetVoiceprintResult parse(Response response) {
         return response.readEntity(GetVoiceprintResult.class);
     }
 }

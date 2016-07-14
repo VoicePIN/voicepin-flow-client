@@ -3,7 +3,7 @@ package com.voicepin.flow.client;
 import com.voicepin.flow.client.exception.AudioTooShortException;
 import com.voicepin.flow.client.exception.FlowServerException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
-import com.voicepin.flow.client.exception.VoiceprintNotEnrolled;
+import com.voicepin.flow.client.exception.VoiceprintNotEnrolledException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +33,7 @@ class ExceptionMapper {
 
         definitions.add(code -> {
             if (code == 420) {
-                throw new VoiceprintNotEnrolled(code);
+                throw new VoiceprintNotEnrolledException(code);
             }
         });
     }

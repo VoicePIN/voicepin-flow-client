@@ -1,7 +1,5 @@
 package com.voicepin.flow.client.calls;
 
-import com.voicepin.flow.client.exception.FlowParseException;
-
 import javax.ws.rs.core.Response;
 
 /**
@@ -10,5 +8,5 @@ import javax.ws.rs.core.Response;
 @FunctionalInterface
 interface RestResponseParser<T> {
 
-    T parse(Response response) throws FlowParseException;
+    T parse(Response response);
 }

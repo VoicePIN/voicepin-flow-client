@@ -1,14 +1,12 @@
 package com.voicepin.flow.client.calls;
 
+import com.voicepin.flow.client.Method;
+import com.voicepin.flow.client.request.VerifyStreamRequest;
+import com.voicepin.flow.client.result.VerifyStreamResult;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.voicepin.flow.client.Method;
-import com.voicepin.flow.client.exception.FlowParseException;
-import com.voicepin.flow.client.request.VerifyStreamRequest;
-import com.voicepin.flow.client.result.VerifyStreamResult;
 
 /**
  * @author kodrzywolek
@@ -42,7 +40,7 @@ public class VerifyStreamCall implements Call<VerifyStreamResult> {
     }
 
     @Override
-    public VerifyStreamResult parse(final Response response) throws FlowParseException {
+    public VerifyStreamResult parse(final Response response) {
         return response.readEntity(VerifyStreamResult.class);
     }
 }
