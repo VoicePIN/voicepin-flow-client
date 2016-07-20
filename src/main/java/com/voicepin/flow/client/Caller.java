@@ -19,8 +19,8 @@ import java.util.concurrent.Future;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.Response;
 
 /**
@@ -36,12 +36,17 @@ class Caller {
     private final ExceptionMapper exceptionMapper;
     private final InvocationBuilderFactory invocationBuilderFactory;
 
-    Caller(final String baseURL) {
+    Caller(final String baseURL, String username, String password) {
 
         final Client client = ClientBuilder.newClient();
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
+
+        if (username != null && password != null) {
+            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+            client.register(feature);
+        }
 
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
@@ -57,8 +62,10 @@ class Caller {
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
-        client.register(feature);
+        if (username != null && password != null) {
+            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+            client.register(feature);
+        }
 
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
