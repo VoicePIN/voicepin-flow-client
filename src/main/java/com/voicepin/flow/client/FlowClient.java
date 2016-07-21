@@ -144,16 +144,10 @@ public final class FlowClient {
 
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
-        }
+            if (baseUrl.contains("https://")) {
+                this.certificateStrategy = new TrustedCertificateStrategy();
+            }
 
-        /**
-         * Allows to connect to the VoicePIN Flow server using HTTPS connection.
-         *
-         * @return
-         */
-        public FlowClientBuilder withHttps() {
-            this.certificateStrategy = new TrustedCertificateStrategy();
-            return this;
         }
 
         /**
