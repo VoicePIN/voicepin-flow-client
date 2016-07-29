@@ -27,6 +27,9 @@ import com.voicepin.flow.client.ssl.TrustedCertificateStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+
 /**
  * Client for VoicePIN Flow REST API (Text Independent Biometric Voice Verification
  * server)
@@ -41,9 +44,13 @@ public class FlowClient {
 
     private FlowClient(FlowClientBuilder builder) {
         if (builder.username != null) {
-            this.caller = new Caller(builder.baseUrl, builder.username, builder.password, builder.certificateStrategy);
+            this.caller = new Caller(builder.executor,
+                    builder.baseUrl,
+                    builder.username,
+                    builder.password,
+                    builder.certificateStrategy);
         } else {
-            this.caller = new Caller(builder.baseUrl);
+            this.caller = new Caller(builder.executor, builder.baseUrl);
         }
     }
 
@@ -140,6 +147,8 @@ public class FlowClient {
 
         private CertificateStrategy certificateStrategy = new TrustedCertificateStrategy();
 
+        private Executor executor = ForkJoinPool.commonPool();
+
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
         }
@@ -190,6 +199,19 @@ public class FlowClient {
          */
         public FlowClientBuilder withKeystore(String keystorePath, String keystorePassword) {
             this.certificateStrategy = new PinnedCertificateStrategy(keystorePath, keystorePassword);
+            return this;
+        }
+
+        /**
+         * Allows to pass custom executor that will run all asynchronous tasks in
+         * FlowClient. By default it uses {@link ForkJoinPool#commonPool()}
+         * 
+         * @param executor
+         *
+         * @return
+         */
+        public FlowClientBuilder withExecutor(Executor executor) {
+            this.executor = executor;
             return this;
         }
 
