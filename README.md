@@ -1,22 +1,35 @@
-# voicepin-flow-client
+# **voicepin-flow-client**
 
 This is java client library for Voicepin Flow also known as Voicepin Text-Independend Server.
 
-## Code examples
+## **Code examples**
 
 ### Setup
-Setting up a client which connects to locally installed Flow Server using http without additional security.
+Setting up a client which connects to locally installed Flow Server using http without any additional security.
 ``` java
 FlowClient flowClient = FlowClient.newBuilder("http://localhost:8081/voicepin-ti-server/v1/").build();
 ```
 
-Setting up more advanced client which uses Basic-Auth and https using custom Keystore.
+Setting up more advanced client which uses Basic-Auth and https using custom Keystore from file.
 ``` java
 FlowClient flowClient = FlowClient.newBuilder("https://localhost:8443/voicepin-ti-server/v1/")
                                   .withBasicAuth("voicepin-client", "password")
                                   .withKeystore("/path/to/the/keystore", "password")
                                   .build();
+
 ```
+
+By default client for all asynchronous operations uses threads from ForkJoinPool.commonPool(). If you plan to use this library in production ready environment we advise you to pass external Executor.
+
+``` java
+FlowClient flowClient = FlowClient.newBuilder("https://localhost:8443/voicepin-ti-server/v1/")
+                                  .withExecutor(Executors.newFixedThreadPool(5))
+                                  .withKeystore("/path/to/the/keystore", "password")
+                                  .build();
+
+```
+
+
 ### Creating voiceprint
 Creating voiceprint and getting VoiceprintId from the response.
 ``` java
@@ -38,7 +51,7 @@ if (result.isEnrolled) {
 ```
 
 ### Enrolling voiceprint using file
-
+Voicepin Flow for the moment allows enrollment using wave file only.
 ``` java
 SpeechStream enrollStream = new SpeechStream(new FileInputStream("/path/to/recording.wav"))
 EnrollRequest enrollRequest = new EnrollRequest(voiceprintId, enrollStream)
