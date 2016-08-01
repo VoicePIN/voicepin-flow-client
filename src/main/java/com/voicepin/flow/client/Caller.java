@@ -14,13 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.Response;
 
 /**
@@ -35,20 +36,23 @@ class Caller {
     private final WebTarget webTarget;
     private final ExceptionMapper exceptionMapper;
     private final InvocationBuilderFactory invocationBuilderFactory;
+    private final Executor executor;
 
-    Caller(final String baseURL) {
+    Caller(Executor executor, final String baseURL) {
 
         final Client client = ClientBuilder.newClient();
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
+        this.executor = executor;
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
     }
 
-    Caller(final String baseURL, String username, String password, CertificateStrategy certificateStrategy) {
+    Caller(Executor executor, final String baseURL, String username, String password,
+            CertificateStrategy certificateStrategy) {
         final Client client = ClientBuilder.newBuilder()
                 .sslContext(certificateStrategy.getSSLContext())
                 .hostnameVerifier(certificateStrategy.getHostnameVerifer())
@@ -60,6 +64,7 @@ class Caller {
         HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
         client.register(feature);
 
+        this.executor = executor;
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
@@ -97,7 +102,7 @@ class Caller {
             } catch (InterruptedException | ExecutionException | FlowClientException e) {
                 throw new IllegalStateException(e);
             }
-        });
+        }, executor);
     }
 
     private <T> Builder prepareRequest(Call<T> call) {
