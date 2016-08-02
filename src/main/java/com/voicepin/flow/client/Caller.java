@@ -3,7 +3,6 @@ package com.voicepin.flow.client;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
-import com.voicepin.flow.client.ssl.CertificateStrategy;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.RequestEntityProcessing;
@@ -38,42 +37,31 @@ class Caller {
     private final InvocationBuilderFactory invocationBuilderFactory;
     private final Executor executor;
 
-    Caller(Executor executor, final String baseURL, String username, String password) {
+    Caller(FlowClient.FlowClientBuilder builder) {
+        Client client;
 
-        final Client client = ClientBuilder.newClient();
+        if (builder.certificateStrategy != null) {
+            client = ClientBuilder.newBuilder()
+                    .sslContext(builder.certificateStrategy.getSSLContext())
+                    .hostnameVerifier(builder.certificateStrategy.getHostnameVerifer())
+                    .build();
+        } else {
+            client = ClientBuilder.newClient();
+        }
+
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
-        addBasicAuth(client, username, password);
+        if (builder.username != null && builder.password != null) {
+            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(builder.username, builder.password);
+            client.register(feature);
+        }
 
-        this.executor = executor;
-        webTarget = client.target(baseURL);
-        exceptionMapper = new ExceptionMapper();
-        invocationBuilderFactory = WebTarget::request;
-    }
-
-    Caller(Executor executor, final String baseURL, String username, String password,
-            CertificateStrategy certificateStrategy) {
-        final Client client = ClientBuilder.newBuilder()
-                .sslContext(certificateStrategy.getSSLContext())
-                .hostnameVerifier(certificateStrategy.getHostnameVerifer())
-                .build();
-        client.register(MultiPartFeature.class);
-        client.property(ClientProperties.READ_TIMEOUT, 100000);
-        client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
-
-        addBasicAuth(client, username, password);
-
-        this.executor = executor;
-        webTarget = client.target(baseURL);
-        exceptionMapper = new ExceptionMapper();
-        invocationBuilderFactory = WebTarget::request;
-    }
-
-    private static void addBasicAuth(Client client, String username, String password) {
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
-        client.register(feature);
+        this.webTarget = client.target(builder.baseUrl);
+        this.executor = builder.executor;
+        this.exceptionMapper = new ExceptionMapper();
+        this.invocationBuilderFactory = WebTarget::request;
     }
 
     <T> T call(final Call<T> call) throws FlowClientException {

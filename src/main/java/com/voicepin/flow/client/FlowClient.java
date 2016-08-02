@@ -43,17 +43,7 @@ public final class FlowClient {
     private final Caller caller;
 
     private FlowClient(FlowClientBuilder builder) {
-        if (builder.certificateStrategy != null) {
-            // https
-            this.caller = new Caller(builder.executor,
-                    builder.baseUrl,
-                    builder.username,
-                    builder.password,
-                    builder.certificateStrategy);
-        } else {
-            // http
-            this.caller = new Caller(builder.executor, builder.baseUrl, builder.username, builder.password);
-        }
+        this.caller = new Caller(builder);
     }
 
     /**
@@ -142,14 +132,14 @@ public final class FlowClient {
 
     public static final class FlowClientBuilder {
 
-        private final String baseUrl;
+        final String baseUrl;
 
-        private String username;
-        private String password;
+        String username;
+        String password;
 
-        private CertificateStrategy certificateStrategy;
+        CertificateStrategy certificateStrategy;
 
-        private Executor executor = ForkJoinPool.commonPool();
+        Executor executor = ForkJoinPool.commonPool();
 
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
