@@ -10,7 +10,6 @@ import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
 import com.voicepin.flow.client.exception.VoiceprintNotEnrolledException;
-import com.voicepin.flow.client.request.AddVoiceprintRequest;
 import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.request.GetVoiceprintRequest;
 import com.voicepin.flow.client.request.VerifyInitRequest;
@@ -59,13 +58,12 @@ public class FlowClient {
      * on this Voiceprint (i.e. enrollment/verification).
      * 
      * 
-     * @param addVoiceprintRequest
      * @return assigned Voiceprint ID
      *
      * @throws FlowConnectionException if could not estabilish connection with Flow Server
      */
-    public AddVoiceprintResult addVoiceprint(AddVoiceprintRequest addVoiceprintRequest) throws FlowClientException {
-        Call<AddVoiceprintResult> call = new AddVoiceprintCall(addVoiceprintRequest);
+    public AddVoiceprintResult addVoiceprint() throws FlowClientException {
+        Call<AddVoiceprintResult> call = new AddVoiceprintCall();
         return caller.call(call);
     }
 
