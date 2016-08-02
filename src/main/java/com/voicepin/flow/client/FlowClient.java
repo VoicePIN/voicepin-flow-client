@@ -56,11 +56,10 @@ public class FlowClient {
     /**
      * Creates new Voiceprint. Returned ID should be passed to any subsequent operations
      * on this Voiceprint (i.e. enrollment/verification).
-     * 
-     * 
+     *
      * @return assigned Voiceprint ID
      *
-     * @throws FlowConnectionException if could not estabilish connection with Flow Server
+     * @throws FlowConnectionException if could not establish connection with Flow Server
      */
     public AddVoiceprintResult addVoiceprint() throws FlowClientException {
         Call<AddVoiceprintResult> call = new AddVoiceprintCall();
@@ -73,7 +72,7 @@ public class FlowClient {
      * @param getVoiceprintRequest Voiceprint ID
      * @return voiceprint state
      *
-     * @throws FlowConnectionException if could not estabilish connection with Flow Server
+     * @throws FlowConnectionException if could not establish connection with Flow Server
      */
     public GetVoiceprintResult getVoiceprint(GetVoiceprintRequest getVoiceprintRequest) throws FlowClientException {
         Call<GetVoiceprintResult> call = new GetVoiceprintCall(getVoiceprintRequest);
@@ -92,7 +91,7 @@ public class FlowClient {
      * @throws InvalidAudioException if given audio is incorrect
      * @throws AudioTooShortException if given audio is too short
      *
-     * @throws FlowConnectionException if could not estabilish connection with Flow Server
+     * @throws FlowConnectionException if could not establish connection with Flow Server
      */
     public EnrollResult enroll(EnrollRequest enrollRequest) throws FlowClientException {
         Call<EnrollResult> call = new EnrollCall(enrollRequest);
@@ -114,7 +113,7 @@ public class FlowClient {
      * @throws InvalidAudioException if given audio is incorrect
      * @throws AudioTooShortException if given audio is too short
      *
-     * @throws FlowConnectionException if could not estabilish connection with Flow Server
+     * @throws FlowConnectionException if could not establish connection with Flow Server
      */
     public VerificationProcess verify(VerifyRequest verifyRequest) throws FlowClientException {
 
