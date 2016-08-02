@@ -150,8 +150,8 @@ public final class FlowClient {
         }
 
         /**
-         * Allows to connect to the VoicePIN Flow server using HTTPS connection using
-         * given credentials
+         * Allows to connect to the VoicePIN Flow server using HTTPS connection with given
+         * credentials
          * 
          * @param username
          * @param password
