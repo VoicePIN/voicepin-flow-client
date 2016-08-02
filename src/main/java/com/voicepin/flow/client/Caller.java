@@ -45,10 +45,7 @@ class Caller {
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
-        if (username != null && password != null) {
-            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
-            client.register(feature);
-        }
+        addBasicAuth(client, username, password);
 
         this.executor = executor;
         webTarget = client.target(baseURL);
@@ -66,15 +63,17 @@ class Caller {
         client.property(ClientProperties.READ_TIMEOUT, 100000);
         client.property(ClientProperties.CONNECT_TIMEOUT, 100000);
 
-        if (username != null && password != null) {
-            HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
-            client.register(feature);
-        }
+        addBasicAuth(client, username, password);
 
         this.executor = executor;
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
+    }
+
+    private static void addBasicAuth(Client client, String username, String password) {
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(username, password);
+        client.register(feature);
     }
 
     <T> T call(final Call<T> call) throws FlowClientException {
