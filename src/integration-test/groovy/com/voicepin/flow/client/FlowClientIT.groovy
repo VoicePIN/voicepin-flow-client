@@ -3,7 +3,6 @@ package com.voicepin.flow.client
 import spock.lang.Specification
 
 import com.voicepin.flow.client.data.SpeechStream
-import com.voicepin.flow.client.request.AddVoiceprintRequest
 import com.voicepin.flow.client.request.EnrollRequest
 import com.voicepin.flow.client.request.GetVoiceprintRequest
 import com.voicepin.flow.client.request.VerifyRequest
@@ -22,11 +21,10 @@ class FlowClientIT extends Specification {
 
     def "voiceprint lifecycle"() {
         given:
-        AddVoiceprintRequest request = new AddVoiceprintRequest()
         def enrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1.wav"))
 
         when: "adding voiceprint"
-        AddVoiceprintResult addVoiceprintResult = client.addVoiceprint(request)
+        AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
 
         then: "new voiceprint ID is returned"
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
