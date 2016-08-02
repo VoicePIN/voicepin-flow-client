@@ -35,22 +35,14 @@ import java.util.concurrent.ForkJoinPool;
  * 
  * @author kodrzywolek, Lukasz Warzecha
  */
-public class FlowClient {
+public final class FlowClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowClient.class);
 
     private final Caller caller;
 
     private FlowClient(FlowClientBuilder builder) {
-        if (builder.username != null) {
-            this.caller = new Caller(builder.executor,
-                    builder.baseUrl,
-                    builder.username,
-                    builder.password,
-                    builder.certificateStrategy);
-        } else {
-            this.caller = new Caller(builder.executor, builder.baseUrl);
-        }
+        this.caller = new Caller(builder);
     }
 
     /**
@@ -137,29 +129,33 @@ public class FlowClient {
 
     public static final class FlowClientBuilder {
 
-        private final String baseUrl;
+        final String baseUrl;
 
-        private String username;
-        private String password;
+        String username;
+        String password;
 
-        private CertificateStrategy certificateStrategy = new TrustedCertificateStrategy();
+        CertificateStrategy certificateStrategy;
 
-        private Executor executor = ForkJoinPool.commonPool();
+        Executor executor = ForkJoinPool.commonPool();
 
         private FlowClientBuilder(String baseUrl) {
             this.baseUrl = baseUrl;
+            if (baseUrl.contains("https://")) {
+                this.certificateStrategy = new TrustedCertificateStrategy();
+            }
+
         }
 
         /**
          * Allows to connect to the VoicePIN Flow server using HTTPS connection with given
-         * credentials.
+         * credentials
          * 
          * @param username
          * @param password
          *
          * @return
          */
-        public FlowClientBuilder withHttps(String username, String password) {
+        public FlowClientBuilder withBasicAuth(String username, String password) {
             if (username == null || username.isEmpty()) {
                 throw new IllegalArgumentException("Username is null or empty");
             }
@@ -170,7 +166,6 @@ public class FlowClient {
 
             this.username = username;
             this.password = password;
-            this.certificateStrategy = new TrustedCertificateStrategy();
             return this;
         }
 
