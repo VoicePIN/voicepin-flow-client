@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.ProcessingException;
@@ -35,8 +36,9 @@ class Caller {
     private final WebTarget webTarget;
     private final ExceptionMapper exceptionMapper;
     private final InvocationBuilderFactory invocationBuilderFactory;
+    private final Executor executor;
 
-    Caller(final String baseURL, String username, String password) {
+    Caller(Executor executor, final String baseURL, String username, String password) {
 
         final Client client = ClientBuilder.newClient();
         client.register(MultiPartFeature.class);
@@ -48,12 +50,14 @@ class Caller {
             client.register(feature);
         }
 
+        this.executor = executor;
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
     }
 
-    Caller(final String baseURL, String username, String password, CertificateStrategy certificateStrategy) {
+    Caller(Executor executor, final String baseURL, String username, String password,
+            CertificateStrategy certificateStrategy) {
         final Client client = ClientBuilder.newBuilder()
                 .sslContext(certificateStrategy.getSSLContext())
                 .hostnameVerifier(certificateStrategy.getHostnameVerifer())
@@ -67,6 +71,7 @@ class Caller {
             client.register(feature);
         }
 
+        this.executor = executor;
         webTarget = client.target(baseURL);
         exceptionMapper = new ExceptionMapper();
         invocationBuilderFactory = WebTarget::request;
@@ -104,7 +109,7 @@ class Caller {
             } catch (InterruptedException | ExecutionException | FlowClientException e) {
                 throw new IllegalStateException(e);
             }
-        });
+        }, executor);
     }
 
     private <T> Builder prepareRequest(Call<T> call) {
