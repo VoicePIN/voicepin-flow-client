@@ -2,7 +2,7 @@ package com.voicepin.flow.client;
 
 import com.voicepin.flow.client.calls.AddVoiceprintCall;
 import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.calls.EnrollCall;
+import com.voicepin.flow.client.calls.EnrollInitCall;
 import com.voicepin.flow.client.calls.GetVoiceprintCall;
 import com.voicepin.flow.client.calls.VerifyInitCall;
 import com.voicepin.flow.client.exception.AudioTooShortException;
@@ -10,12 +10,13 @@ import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
 import com.voicepin.flow.client.exception.VoiceprintNotEnrolledException;
+import com.voicepin.flow.client.request.EnrollInitRequest;
 import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.request.GetVoiceprintRequest;
 import com.voicepin.flow.client.request.VerifyInitRequest;
 import com.voicepin.flow.client.request.VerifyRequest;
 import com.voicepin.flow.client.result.AddVoiceprintResult;
-import com.voicepin.flow.client.result.EnrollResult;
+import com.voicepin.flow.client.result.EnrollInitResult;
 import com.voicepin.flow.client.result.GetVoiceprintResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
 import com.voicepin.flow.client.ssl.AnyCertificateStrategy;
@@ -72,9 +73,17 @@ public final class FlowClient {
     }
 
     /**
-     * Creates new voice model using streamed recording. Sets it for this Voiceprint. The
-     * model will be used as a reference in any subsequent verifications. If the
-     * Voiceprint has already been enrolled, its preexisting model would be overwritten.
+     * 
+     * 
+     * Starts enrollment process on given Voiceprint with provided speech stream.
+     * Enrollment starts immediately (i.e. it does not wait for the whole stream to be
+     * sent). The process is finished when user stops streaming so in real-time enrollment
+     * it is crucial to listen to current enrollment status.
+     *
+     * Succesfull enrollment will result in creating new voice model which will be
+     * associated with given Voiceprint. The model will be used as a reference in any
+     * subsequent verifications. If the Voiceprint has already been enrolled, its
+     * preexisting model would be overwritten.
      * 
      * @param enrollRequest request with Voiceprint ID and recording stream
      *
@@ -85,9 +94,13 @@ public final class FlowClient {
      *
      * @throws FlowConnectionException if could not establish connection with Flow Server
      */
-    public EnrollResult enroll(EnrollRequest enrollRequest) throws FlowClientException {
-        Call<EnrollResult> call = new EnrollCall(enrollRequest);
-        return caller.call(call);
+    public EnrollmentProcess enroll(EnrollRequest enrollRequest) throws FlowClientException {
+
+        EnrollInitRequest initReq = new EnrollInitRequest(enrollRequest.getVoiceprintId());
+        Call<EnrollInitResult> initCall = new EnrollInitCall(initReq);
+        EnrollInitResult initResult = caller.call(initCall);
+
+        return new EnrollmentProcess(caller, initResult, enrollRequest.getSpeechStream());
     }
 
     /**
