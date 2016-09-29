@@ -156,7 +156,6 @@ public final class FlowClient {
             if (baseUrl.contains("https://")) {
                 this.certificateStrategy = new TrustedCertificateStrategy();
             }
-
         }
 
         /**
