@@ -42,7 +42,7 @@ class FlowClientIT extends Specification {
         EnrollRequest enrollRequest = new EnrollRequest(voiceprintId, enrollStream)
         client.enroll(enrollRequest).getFinalStatus();
 
-        then: "OK is returned"
+        then: "exception is not thrown"
         notThrown(Exception)
 
         when: "getting voiceprint"
@@ -70,6 +70,7 @@ class FlowClientIT extends Specification {
         VerifyResult finalResult = streamClient.getFinalResult();
 
         then: "final decision is returned"
+        notThrown(Exception)
         finalResult != null
         finalResult.getDecision() != null
         finalResult.getScore() != null
@@ -133,7 +134,7 @@ class FlowClientIT extends Specification {
             Thread.sleep(100)
         }
         EnrollStatus result = enrollmentProcess.finalStatus
-        then:
+        then: "progress is bigger than 100"
         LOGGER.info("{}", result)
         result != null
         result.getProgress() > 100
@@ -145,10 +146,10 @@ class FlowClientIT extends Specification {
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
         EnrollRequest req = new EnrollRequest(voiceprintId, shortEnrollStream)
-        when: "enrolling with correct stream"
+        when: "enrolling with speech stream containing too short audio for enrollment"
         EnrollmentProcess enrollmentProcess = client.enroll(req)
         EnrollStatus result = enrollmentProcess.getFinalStatus()
-        then:
+        then: "operation should throw AudioTooShortException"
         thrown(AudioTooShortException.class)
     }
 
