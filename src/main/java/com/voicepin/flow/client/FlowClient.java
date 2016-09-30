@@ -36,7 +36,7 @@ import java.util.concurrent.ForkJoinPool;
  * 
  * @author kodrzywolek, Lukasz Warzecha
  */
-public final class FlowClient {
+public class FlowClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowClient.class);
 
@@ -47,8 +47,8 @@ public final class FlowClient {
     }
 
     /**
-     * Creates new Voiceprint. Returned ID should be passed to any subsequent operations
-     * on this Voiceprint (i.e. enrollment/verification).
+     * Creates new Voiceprint. Returned ID should be passed to ay subsequent operations on
+     * this Voiceprint (i.e. enrollment/verification).
      *
      * @return assigned Voiceprint ID
      *
