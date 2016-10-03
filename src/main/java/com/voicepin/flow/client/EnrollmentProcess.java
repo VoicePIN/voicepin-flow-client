@@ -44,7 +44,7 @@ public class EnrollmentProcess implements StreamingProcess {
     /**
      * Returns current status of enrollment during speech streaming.
      * 
-     * If stream is already finished it returns final status.
+     * If stream is already finished it returns final status immediately.
      *
      * @return current enrollment status
      */
@@ -60,8 +60,9 @@ public class EnrollmentProcess implements StreamingProcess {
 
     /**
      * Blocks current thread in order to get final status of enrollment. If stream already
-     * ended it returns final status.
+     * ended it returns final status immediately.
      *
+     * @return final enrollment status
      */
     public EnrollStatus getFinalStatus() throws FlowClientException {
         try {
@@ -72,9 +73,11 @@ public class EnrollmentProcess implements StreamingProcess {
     }
 
     /**
-     * @return future which allows to use this process asynchronously
+     * Allows to use this process asynchronously.
+     *
+     * @return future of final enrollment status
      */
-    public CompletableFuture<EnrollStatus> getFuture() {
+    public CompletableFuture<EnrollStatus> getFinalStatusAsync() {
         return futureResult;
     }
 

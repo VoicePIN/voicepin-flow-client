@@ -1,5 +1,8 @@
 package com.voicepin.flow.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -7,6 +10,8 @@ import java.io.InputStream;
  * @author Lukasz Warzecha
  */
 public class DelayedInputStream extends InputStream {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DelayedInputStream.class);
 
     private final InputStream inputStream;
     private int counter = 0;
@@ -22,7 +27,7 @@ public class DelayedInputStream extends InputStream {
             try {
                 Thread.sleep(1500);
             } catch (final InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("", e);
             }
         }
         counter++;
@@ -31,41 +36,41 @@ public class DelayedInputStream extends InputStream {
 
     @Override
     public int read(byte[] b) throws IOException {
-        return super.read(b);
+        return inputStream.read(b);
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        return super.read(b, off, len);
+        return inputStream.read(b, off, len);
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return super.skip(n);
+        return inputStream.skip(n);
     }
 
     @Override
     public int available() throws IOException {
-        return super.available();
+        return inputStream.available();
     }
 
     @Override
     public void close() throws IOException {
-        super.close();
+        inputStream.close();
     }
 
     @Override
     public synchronized void mark(int readlimit) {
-        super.mark(readlimit);
+        inputStream.mark(readlimit);
     }
 
     @Override
     public synchronized void reset() throws IOException {
-        super.reset();
+        inputStream.reset();
     }
 
     @Override
     public boolean markSupported() {
-        return super.markSupported();
+        return inputStream.markSupported();
     }
 }

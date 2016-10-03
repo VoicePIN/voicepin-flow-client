@@ -64,7 +64,7 @@ public class VerificationProcess implements StreamingProcess {
 
     /**
      * Blocks current thread in order to get final result of verification. If stream
-     * already ended it returns final result.
+     * already ended it returns final result immediately.
      *
      * @return final verification result
      */
@@ -77,9 +77,11 @@ public class VerificationProcess implements StreamingProcess {
     }
 
     /**
-     * @return future which allows to use this process asynchronously
+     * Allows to use this process asynchronously.
+     * 
+     * @return future of final verification result
      */
-    public CompletableFuture<VerifyResult> getFuture() {
+    public CompletableFuture<VerifyResult> getFinalResultAsync() {
         return futureResult;
     }
 

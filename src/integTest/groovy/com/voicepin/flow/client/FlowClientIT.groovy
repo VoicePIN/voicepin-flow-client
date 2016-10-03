@@ -61,7 +61,7 @@ class FlowClientIT extends Specification {
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
         VerificationProcess streamClient = client.verify(verifyRequest)
 
-        while (!streamClient.future.isDone()) {
+        while (!streamClient.finalResultAsync.isDone()) {
             VerifyResult verifyResult = streamClient.getCurrentResult();
             LOGGER.info("Current result {}", verifyResult)
             Thread.sleep(100);
@@ -98,7 +98,7 @@ class FlowClientIT extends Specification {
         streamClient = client.verify(verifyRequest)
         finalResult = null
 
-        streamClient.getFuture().thenAccept(new Consumer<VerifyResult>() {
+        streamClient.getFinalResultAsync().thenAccept(new Consumer<VerifyResult>() {
 
             @Override
             void accept(VerifyResult verifyResult) {
@@ -106,7 +106,7 @@ class FlowClientIT extends Specification {
             }
         })
 
-        while (!streamClient.future.isDone()) {
+        while (!streamClient.finalResultAsync.isDone()) {
             Thread.sleep(1000)
         }
 
@@ -128,7 +128,7 @@ class FlowClientIT extends Specification {
         when: "enrolling with correct stream"
         EnrollmentProcess enrollmentProcess = client.enroll(req)
 
-        while (!enrollmentProcess.getFuture().isDone()) {
+        while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
             EnrollStatus status = enrollmentProcess.getCurrentStatus();
             LOGGER.info("{}", status)
             Thread.sleep(100)
