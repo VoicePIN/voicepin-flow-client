@@ -65,7 +65,7 @@ verificationProcess.getCurrentResult();
 verificationProcess.getFinalResult();
 
 // to react asynchronously to the final result
-verificationProcess.getFuture().thenAccept(e -> {
+verificationProcess.getFinalResultAsync().thenAccept(e -> {
     // do something
 })
 ```
