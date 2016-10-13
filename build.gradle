@@ -74,8 +74,12 @@ def getCommitHash() {
 }
 
 artifactory {
-    contextUrl = 'http://192.168.66.90:8099/artifactory'
     publish {
+        contextUrl = 'http://192.168.66.90:8099/artifactory'
+        repository {
+            repoKey = "libs-release-local"
+            username = "deployer"
+        }
         defaults {
             publishConfigs('archives')
         }
