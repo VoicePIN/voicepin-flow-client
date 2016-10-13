@@ -1,5 +1,14 @@
 import org.ajoberstar.grgit.Grgit
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+    }
+}
+
 plugins {
     id 'java'
     id 'idea'
@@ -10,6 +19,8 @@ plugins {
 
 group = 'com.voicepin.flow'
 version = scmVersion.version
+
+apply plugin: "com.jfrog.artifactory"
 
 jar {
     manifest {
@@ -58,4 +69,12 @@ task commitHash << {
 def getCommitHash() {
     def repo = Grgit.open(project.file('.'))
     return repo.log(maxCommits: 1).first().id
+}
+
+artifactory {
+    publish {
+        defaults {
+            publishConfigs('archives')
+        }
+    }
 }
