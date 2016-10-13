@@ -81,6 +81,7 @@ artifactory {
             username = voicepinArtifactoryUser
             password = voicepinArtifactoryPassword
         }
+        publishIvy = false
         defaults {
             publishConfigs('archives')
         }
