@@ -71,7 +71,7 @@ class Caller {
             final Response response = request.method(call.getMethod().toString(), call.getEntity());
             exceptionMapper.validate(response);
 
-            LOGGER.debug("Response body: " + response.toString());
+            LOGGER.trace("Response body: " + response.toString());
 
             return call.parse(response);
         } catch (final ProcessingException e) {
@@ -89,8 +89,8 @@ class Caller {
                 Response response = futureResponse.get();
                 exceptionMapper.validate(response);
 
-                LOGGER.debug(response.toString());
-                LOGGER.debug("Response body: " + response.toString());
+                LOGGER.trace(response.toString());
+                LOGGER.trace("Response body: " + response.toString());
 
                 return call.parse(response);
             } catch (InterruptedException | ExecutionException | FlowClientException e) {

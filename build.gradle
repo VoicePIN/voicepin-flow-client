@@ -1,26 +1,18 @@
 import org.ajoberstar.grgit.Grgit
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
-    }
-}
-
 plugins {
     id 'java'
     id 'idea'
     id 'groovy'
     id 'maven'
-    id 'pl.allegro.tech.build.axion-release' version '1.3.4'
+    id 'pl.allegro.tech.build.axion-release' version '1.4.0'
+    id "nebula.project" version "3.3.0"
 }
 
 group = 'com.voicepin.flow'
 version = scmVersion.version
 
-apply plugin: "com.jfrog.artifactory"
+apply plugin: 'nebula.integtest-standalone'
 
 jar {
     manifest {
@@ -69,12 +61,4 @@ task commitHash << {
 def getCommitHash() {
     def repo = Grgit.open(project.file('.'))
     return repo.log(maxCommits: 1).first().id
-}
-
-artifactory {
-    publish {
-        defaults {
-            publishConfigs('archives')
-        }
-    }
 }

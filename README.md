@@ -48,39 +48,27 @@ if (result.isEnrolled()) {
 }
 ```
 
-### Enrolling Voiceprint using file
-VoicePIN Flow for the moment allows enrollment using stream in wave format (wave headers must be present).
-``` java
-// using a wave file on local filesystem (please note that this might also be a real-time stream as long as wave headers are provided)
-SpeechStream enrollStream = new SpeechStream(new FileInputStream("/path/to/recording.wav"));
-EnrollRequest enrollRequest = new EnrollRequest(voiceprintId, enrollStream);
-flowClient.enroll(enrollRequest);
-```
 
-### Performing verification
-The example below uses FileInputStream but it might be any other InputStream. Data is dynamically transferred to the Flow Server using chunked Transfer-Encoding as soon as it is available in the InputStream.
+
+### Performing Enrollment or Verification
+Both processes are similar in usage. The example below uses FileInputStream but it might be any other InputStream. Data is dynamically transferred to the Flow Server using chunked Transfer-Encoding as soon as it is available in the InputStream.
 ``` java
-SpeechStream verifyStream = new SpeechStream(new FileInputStream("/path/to/recording.wav"));
-VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream);
+SpeechStream speechStream = new SpeechStream(new FileInputStream("/path/to/recording.wav"));
+VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, speechStream);
 // Verification is performed in another thread
 VerificationProcess verificationProcess = flowClient.verify(verifyRequest);
 
-// which allows to check results during that process
+// to check current result
 verificationProcess.getCurrentResult();
+
+// to wait for the final result and block current Thread
+verificationProcess.getFinalResult();
+
+// to react asynchronously to the final result
+verificationProcess.getFinalResultAsync().thenAccept(e -> {
+    // do something
+})
 ```
 
-In case we want to react on an error or to know when verification finished we need to add additional listener to the process.
 
-``` java
-verificationProcess.addListener(new VerificationProcessListener() {
-    @Override
-    public void onError(Throwable throwable) {
-        // react on error
-    }
 
-    @Override
-    public void onSuccess(VerifyResult verifyResult) {
-        // react on final result
-    }
-});
-```

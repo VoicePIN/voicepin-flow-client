@@ -19,52 +19,70 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Lukasz Warzecha
  */
-public class VerificationProcess {
+public class VerificationProcess implements StreamingProcess {
 
     private final Caller caller;
     private final VerifyInitResult initResult;
-    private final CompletableFuture<VerifyStreamResult> futureResult;
+    private final CompletableFuture<VerifyResult> futureResult;
 
     VerificationProcess(Caller caller, VerifyInitResult initResult, SpeechStream speechStream) {
         this.caller = caller;
         this.initResult = initResult;
+        this.futureResult = new CompletableFuture<>();
 
         VerifyStreamRequest streamReq = new VerifyStreamRequest(initResult.getSpeechPath(), speechStream);
         Call<VerifyStreamResult> streamCall = new VerifyStreamCall(streamReq);
-        this.futureResult = caller.asyncCall(streamCall);
+
+        caller.asyncCall(streamCall).whenComplete((streamResult, throwable) -> {
+
+            if (throwable != null) {
+                futureResult.completeExceptionally(getParentException(throwable));
+            } else {
+                VerifyResult finalResult = new VerifyResult(streamResult.getScore(), streamResult.getDecision());
+                futureResult.complete(finalResult);
+            }
+        });
+
     }
 
     /**
      * Returns current result while speech streaming may still be in progress.
+     * <p>
+     * If stream is already finished it returns final result.
      *
      * @return current verification result
      */
     public VerifyResult getCurrentResult() throws FlowClientException {
-        VerifyResultRequest verifyResultRequest = new VerifyResultRequest(initResult.getResultPath());
-        Call<VerifyResult> streamCall = new VerifyResultCall(verifyResultRequest);
-        return caller.call(streamCall);
+        if (!futureResult.isDone()) {
+            VerifyResultRequest verifyResultRequest = new VerifyResultRequest(initResult.getResultPath());
+            Call<VerifyResult> streamCall = new VerifyResultCall(verifyResultRequest);
+            return caller.call(streamCall);
+        }
+
+        return getFinalResult();
     }
 
     /**
-     * Adds listener for verification process which will be called on final success or
-     * error.
-     * 
-     * @param verificationProcessListener
+     * Blocks current thread in order to get final result of verification. If stream
+     * already ended it returns final result immediately.
+     *
+     * @return final verification result
      */
-    // TODO - add additional method to the Listener which allows to listening for
-    // currentResults in given interval
-    public void addListener(VerificationProcessListener verificationProcessListener) {
+    public VerifyResult getFinalResult() throws FlowClientException {
+        try {
+            return futureResult.get();
+        } catch (Exception e) {
+            throw getParentException(e);
+        }
+    }
 
-        futureResult.whenComplete((streamResult, throwable) -> {
-
-            if (streamResult == null) {
-                verificationProcessListener.onError(throwable.getCause());
-            } else {
-                verificationProcessListener.onSuccess(new VerifyResult(streamResult.getScore(),
-                        streamResult.getDecision()));
-            }
-        });
-
+    /**
+     * Allows to use this process asynchronously.
+     * 
+     * @return future of final verification result
+     */
+    public CompletableFuture<VerifyResult> getFinalResultAsync() {
+        return futureResult;
     }
 
 }
