@@ -78,7 +78,8 @@ artifactory {
         contextUrl = 'http://192.168.66.90:8099/artifactory'
         repository {
             repoKey = "libs-release-local"
-            username = "deployer"
+            username = voicepinArtifactoryUser
+            password = voicepinArtifactoryPassword
         }
         defaults {
             publishConfigs('archives')
