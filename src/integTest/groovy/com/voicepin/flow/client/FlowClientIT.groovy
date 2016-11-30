@@ -1,5 +1,7 @@
 package com.voicepin.flow.client
 
+import com.voicepin.flow.client.exception.FlowServerException
+
 import java.util.function.Consumer
 
 import org.slf4j.Logger
@@ -7,7 +9,7 @@ import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
 import com.voicepin.flow.client.data.SpeechStream
-import com.voicepin.flow.client.exception.AudioTooShortException
+import com.voicepin.flow.client.exception.IncorrectAudioInputException
 import com.voicepin.flow.client.request.EnrollRequest
 import com.voicepin.flow.client.request.GetVoiceprintRequest
 import com.voicepin.flow.client.request.VerifyRequest
@@ -18,13 +20,13 @@ import com.voicepin.flow.client.result.VerifyResult
 
 class FlowClientIT extends Specification {
 
-    Logger LOGGER = LoggerFactory.getLogger(FlowClientIT.class);
+    Logger LOGGER = LoggerFactory.getLogger(FlowClientIT.class)
 
     FlowClient client
 
     def setup() {
         def url = "http://localhost:8081/voicepin-ti-server/v1/"
-        client = FlowClient.newBuilder(url).build();
+        client = FlowClient.newBuilder(url).build()
     }
 
     def "voiceprint lifecycle"() {
@@ -40,7 +42,7 @@ class FlowClientIT extends Specification {
 
         when: "enrolling voiceprint"
         EnrollRequest enrollRequest = new EnrollRequest(voiceprintId, enrollStream)
-        client.enroll(enrollRequest).getFinalStatus();
+        client.enroll(enrollRequest).getFinalStatus()
 
         then: "exception is not thrown"
         notThrown(Exception)
@@ -56,18 +58,18 @@ class FlowClientIT extends Specification {
 
         when: "verifying voiceprint and getting results during streaming"
         SpeechStream verifyStream = new SpeechStream(
-                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")));
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")))
 
         VerifyRequest verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
         VerificationProcess streamClient = client.verify(verifyRequest)
 
         while (!streamClient.finalResultAsync.isDone()) {
-            VerifyResult verifyResult = streamClient.getCurrentResult();
+            VerifyResult verifyResult = streamClient.getCurrentResult()
             LOGGER.info("Current result {}", verifyResult)
             Thread.sleep(100);
         }
 
-        VerifyResult finalResult = streamClient.getFinalResult();
+        VerifyResult finalResult = streamClient.getFinalResult()
 
         then: "final decision is returned"
         notThrown(Exception)
@@ -78,11 +80,11 @@ class FlowClientIT extends Specification {
 
         when: "verifying voiceprint and getting only final result"
         verifyStream = new SpeechStream(
-                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")));
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")))
 
         verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
         streamClient = client.verify(verifyRequest)
-        finalResult = streamClient.getFinalResult();
+        finalResult = streamClient.getFinalResult()
 
         then: "final decision is returned"
         finalResult != null
@@ -92,7 +94,7 @@ class FlowClientIT extends Specification {
 
         when: "verifying voiceprint and getting final result asynchronously"
         verifyStream = new SpeechStream(
-                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")));
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_2.wav")))
 
         verifyRequest = new VerifyRequest(voiceprintId, verifyStream)
         streamClient = client.verify(verifyRequest)
@@ -121,36 +123,42 @@ class FlowClientIT extends Specification {
         given:
         def enrollStream = new SpeechStream(
                 new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_1.wav")))
-        def shortEnrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/short.wav"))
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
         EnrollRequest req = new EnrollRequest(voiceprintId, enrollStream)
+
         when: "enrolling with correct stream"
+
         EnrollmentProcess enrollmentProcess = client.enroll(req)
 
         while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
-            EnrollStatus status = enrollmentProcess.getCurrentStatus();
+            EnrollStatus status = enrollmentProcess.getCurrentStatus()
             LOGGER.info("{}", status)
             Thread.sleep(100)
         }
         EnrollStatus result = enrollmentProcess.finalStatus
+
         then: "progress is bigger than 100"
+
         LOGGER.info("{}", result)
         result != null
         result.getProgress() > 100
     }
 
-    def "enrolling with too short audio should throw AudioTooShortException"() {
+    def "enrolling with too short audio throws AudioTooShortException"() {
         given:
         def shortEnrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/short_audio.wav"))
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
         EnrollRequest req = new EnrollRequest(voiceprintId, shortEnrollStream)
+
         when: "enrolling with speech stream containing too short audio for enrollment"
         EnrollmentProcess enrollmentProcess = client.enroll(req)
-        EnrollStatus result = enrollmentProcess.getFinalStatus()
-        then: "operation should throw AudioTooShortException"
-        thrown(AudioTooShortException.class)
+        enrollmentProcess.getFinalStatus()
+
+        then: "operation should throw IncorrectAudioInputException"
+        FlowServerException e = thrown(IncorrectAudioInputException.class)
+        e.getFlowErrorMessage() == "Provided audio was too short for enrollment process"
     }
 
 }

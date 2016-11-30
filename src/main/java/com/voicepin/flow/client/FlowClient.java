@@ -5,7 +5,7 @@ import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.calls.EnrollInitCall;
 import com.voicepin.flow.client.calls.GetVoiceprintCall;
 import com.voicepin.flow.client.calls.VerifyInitCall;
-import com.voicepin.flow.client.exception.AudioTooShortException;
+import com.voicepin.flow.client.exception.IncorrectAudioInputException;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
@@ -90,7 +90,7 @@ public class FlowClient {
      * @return
      *
      * @throws InvalidAudioException if given audio is incorrect
-     * @throws AudioTooShortException if given audio is too short
+     * @throws IncorrectAudioInputException if given audio is too short
      *
      * @throws FlowConnectionException if could not establish connection with Flow Server
      */
@@ -116,7 +116,7 @@ public class FlowClient {
      *
      * @throws VoiceprintNotEnrolledException if Voiceprint is not enrolled
      * @throws InvalidAudioException if given audio is incorrect
-     * @throws AudioTooShortException if given audio is too short
+     * @throws IncorrectAudioInputException if given audio is too short
      *
      * @throws FlowConnectionException if could not establish connection with Flow Server
      */
