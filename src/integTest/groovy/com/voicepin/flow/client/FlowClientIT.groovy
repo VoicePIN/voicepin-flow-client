@@ -1,7 +1,5 @@
 package com.voicepin.flow.client
 
-import com.voicepin.flow.client.exception.FlowServerException
-
 import java.util.function.Consumer
 
 import org.slf4j.Logger
@@ -9,11 +7,13 @@ import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
 import com.voicepin.flow.client.data.SpeechStream
+import com.voicepin.flow.client.exception.FlowServerException
 import com.voicepin.flow.client.exception.IncorrectAudioInputException
 import com.voicepin.flow.client.request.EnrollRequest
 import com.voicepin.flow.client.request.GetVoiceprintRequest
 import com.voicepin.flow.client.request.VerifyRequest
 import com.voicepin.flow.client.result.AddVoiceprintResult
+import com.voicepin.flow.client.result.AudioIssue
 import com.voicepin.flow.client.result.EnrollStatus
 import com.voicepin.flow.client.result.GetVoiceprintResult
 import com.voicepin.flow.client.result.VerifyResult
@@ -66,7 +66,7 @@ class FlowClientIT extends Specification {
         while (!streamClient.finalResultAsync.isDone()) {
             VerifyResult verifyResult = streamClient.getCurrentResult()
             LOGGER.info("Current result {}", verifyResult)
-            Thread.sleep(100);
+            Thread.sleep(500);
         }
 
         VerifyResult finalResult = streamClient.getFinalResult()
@@ -133,8 +133,8 @@ class FlowClientIT extends Specification {
 
         while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
             EnrollStatus status = enrollmentProcess.getCurrentStatus()
+            Thread.sleep(500)
             LOGGER.info("{}", status)
-            Thread.sleep(100)
         }
         EnrollStatus result = enrollmentProcess.finalStatus
 
@@ -160,5 +160,87 @@ class FlowClientIT extends Specification {
         FlowServerException e = thrown(IncorrectAudioInputException.class)
         e.getFlowErrorMessage() == "Provided audio was too short for enrollment process"
     }
+
+    def "enrolling with distorted audio throws DistortedException"() {
+        given:
+        def shortEnrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1_distorted.wav"))
+        AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
+        def voiceprintId = addVoiceprintResult.getVoiceprintId()
+        EnrollRequest req = new EnrollRequest(voiceprintId, shortEnrollStream)
+
+        when: "enrolling with speech stream containing too short audio for enrollment"
+        EnrollmentProcess enrollmentProcess = client.enroll(req)
+        enrollmentProcess.getFinalStatus()
+
+        then: "operation should throw IncorrectAudioInputException"
+        FlowServerException e = thrown(IncorrectAudioInputException.class)
+        e.getFlowErrorMessage() == "Audio is distorted"
+    }
+
+    def "enrolling voiceprint with distortedAudio returns DISTORTED flag"() {
+        given:
+        def enrollStream = new SpeechStream(
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/record_1_distorted.wav")))
+        AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
+        def voiceprintId = addVoiceprintResult.getVoiceprintId()
+        EnrollRequest req = new EnrollRequest(voiceprintId, enrollStream)
+
+        when: "enrolling with correct stream"
+        EnrollmentProcess enrollmentProcess = client.enroll(req)
+
+        while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
+            EnrollStatus status = enrollmentProcess.getCurrentStatus()
+
+            LOGGER.info("{}", status)
+            Thread.sleep(500)
+
+            if(status.getProgress()>0){
+                assert status.audioIssues.contains(AudioIssue.DISTORTED)
+            }
+        }
+        enrollmentProcess.finalStatus
+        then: "IncorrectAudioInputException is thrown"
+        FlowServerException e = thrown(IncorrectAudioInputException.class)
+        e.getFlowErrorMessage() == "Audio is distorted"
+    }
+
+    def "updating enroll with impostor speech return IMPOSTOR audioIssue"() {
+        given:
+        def enrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1.wav"))
+        def imposturedStream = new SpeechStream(
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/impostored.wav")))
+        AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
+        def voiceprintId = addVoiceprintResult.getVoiceprintId()
+        EnrollRequest req = new EnrollRequest(voiceprintId, enrollStream)
+
+        when: "enrolling initially with correct stream"
+        EnrollmentProcess enrollmentProcess = client.enroll(req)
+        enrollmentProcess.finalStatus
+        then: "inital enroll sucedeed"
+        notThrown(Exception)
+
+        when: "performing updatingEnroll with impostored stream"
+        req = new EnrollRequest(voiceprintId, imposturedStream)
+        enrollmentProcess = client.enroll(req)
+        then: "contains IMPOSTOR flag as audioIssue"
+        boolean impostured = false;
+
+        while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
+            EnrollStatus status = enrollmentProcess.getCurrentStatus()
+            if(impostured || status.audioIssues.contains(AudioIssue.IMPOSTOR)){
+                impostured = true;
+                assert status.audioIssues.contains(AudioIssue.IMPOSTOR)
+            }
+            LOGGER.info("{}", status)
+            Thread.sleep(500)
+        }
+
+        when: "trying to return finalStatus"
+        enrollmentProcess.finalStatus
+        then: "IncorrectAudioInputException is thrown with Impostor"
+        FlowServerException e = thrown(IncorrectAudioInputException.class)
+        e.getFlowErrorMessage() == "Impostor detected"
+    }
+
 
 }
