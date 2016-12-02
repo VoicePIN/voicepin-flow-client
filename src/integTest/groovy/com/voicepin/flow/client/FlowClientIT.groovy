@@ -15,6 +15,8 @@ import com.voicepin.flow.client.request.VerifyRequest
 import com.voicepin.flow.client.result.AddVoiceprintResult
 import com.voicepin.flow.client.result.AudioIssue
 import com.voicepin.flow.client.result.EnrollStatus
+import com.voicepin.flow.client.result.FinalEnrollStatus
+import com.voicepin.flow.client.result.FinalVerifyResult
 import com.voicepin.flow.client.result.GetVoiceprintResult
 import com.voicepin.flow.client.result.VerifyResult
 
@@ -69,7 +71,7 @@ class FlowClientIT extends Specification {
             Thread.sleep(500);
         }
 
-        VerifyResult finalResult = streamClient.getFinalResult()
+        FinalVerifyResult finalResult = streamClient.getFinalResult()
 
         then: "final decision is returned"
         notThrown(Exception)
@@ -100,10 +102,10 @@ class FlowClientIT extends Specification {
         streamClient = client.verify(verifyRequest)
         finalResult = null
 
-        streamClient.getFinalResultAsync().thenAccept(new Consumer<VerifyResult>() {
+        streamClient.getFinalResultAsync().thenAccept(new Consumer<FinalVerifyResult>() {
 
             @Override
-            void accept(VerifyResult verifyResult) {
+            void accept(FinalVerifyResult verifyResult) {
                 finalResult = verifyResult;
             }
         })
@@ -136,7 +138,7 @@ class FlowClientIT extends Specification {
             Thread.sleep(500)
             LOGGER.info("{}", status)
         }
-        EnrollStatus result = enrollmentProcess.finalStatus
+        FinalEnrollStatus result = enrollmentProcess.finalStatus
 
         then: "progress is bigger than 100"
 
