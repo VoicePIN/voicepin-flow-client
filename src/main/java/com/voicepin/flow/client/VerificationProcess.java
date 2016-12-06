@@ -7,6 +7,7 @@ import com.voicepin.flow.client.data.SpeechStream;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.request.VerifyResultRequest;
 import com.voicepin.flow.client.request.VerifyStreamRequest;
+import com.voicepin.flow.client.result.FinalVerifyResult;
 import com.voicepin.flow.client.result.VerifyInitResult;
 import com.voicepin.flow.client.result.VerifyResult;
 import com.voicepin.flow.client.result.VerifyStreamResult;
@@ -23,7 +24,7 @@ public class VerificationProcess implements StreamingProcess {
 
     private final Caller caller;
     private final VerifyInitResult initResult;
-    private final CompletableFuture<VerifyResult> futureResult;
+    private final CompletableFuture<FinalVerifyResult> futureResult;
 
     VerificationProcess(Caller caller, VerifyInitResult initResult, SpeechStream speechStream) {
         this.caller = caller;
@@ -38,7 +39,8 @@ public class VerificationProcess implements StreamingProcess {
             if (throwable != null) {
                 futureResult.completeExceptionally(getParentException(throwable));
             } else {
-                VerifyResult finalResult = new VerifyResult(streamResult.getScore(), streamResult.getDecision());
+                FinalVerifyResult finalResult = new FinalVerifyResult(streamResult.getScore(),
+                        streamResult.getDecision());
                 futureResult.complete(finalResult);
             }
         });
@@ -47,19 +49,13 @@ public class VerificationProcess implements StreamingProcess {
 
     /**
      * Returns current result while speech streaming may still be in progress.
-     * <p>
-     * If stream is already finished it returns final result.
      *
      * @return current verification result
      */
     public VerifyResult getCurrentResult() throws FlowClientException {
-        if (!futureResult.isDone()) {
-            VerifyResultRequest verifyResultRequest = new VerifyResultRequest(initResult.getResultPath());
-            Call<VerifyResult> streamCall = new VerifyResultCall(verifyResultRequest);
-            return caller.call(streamCall);
-        }
-
-        return getFinalResult();
+        VerifyResultRequest verifyResultRequest = new VerifyResultRequest(initResult.getResultPath());
+        Call<VerifyResult> streamCall = new VerifyResultCall(verifyResultRequest);
+        return caller.call(streamCall);
     }
 
     /**
@@ -68,7 +64,7 @@ public class VerificationProcess implements StreamingProcess {
      *
      * @return final verification result
      */
-    public VerifyResult getFinalResult() throws FlowClientException {
+    public FinalVerifyResult getFinalResult() throws FlowClientException {
         try {
             return futureResult.get();
         } catch (Exception e) {
@@ -81,7 +77,7 @@ public class VerificationProcess implements StreamingProcess {
      * 
      * @return future of final verification result
      */
-    public CompletableFuture<VerifyResult> getFinalResultAsync() {
+    public CompletableFuture<FinalVerifyResult> getFinalResultAsync() {
         return futureResult;
     }
 
