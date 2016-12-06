@@ -10,6 +10,7 @@ import com.voicepin.flow.client.request.EnrollStreamRequest;
 import com.voicepin.flow.client.result.EnrollInitResult;
 import com.voicepin.flow.client.result.EnrollStatus;
 import com.voicepin.flow.client.result.EnrollStreamResult;
+import com.voicepin.flow.client.result.FinalEnrollStatus;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +21,7 @@ public class EnrollmentProcess implements StreamingProcess {
 
     private final Caller caller;
     private final EnrollInitResult initResult;
-    private final CompletableFuture<EnrollStatus> futureResult;
+    private final CompletableFuture<FinalEnrollStatus> futureResult;
 
     EnrollmentProcess(Caller caller, EnrollInitResult initResult, SpeechStream speechStream) {
         this.caller = caller;
@@ -35,8 +36,8 @@ public class EnrollmentProcess implements StreamingProcess {
             if (throwable != null) {
                 futureResult.completeExceptionally(getParentException(throwable));
             } else {
-                EnrollStatus enrollStatus = new EnrollStatus(streamResult.getProgress());
-                futureResult.complete(enrollStatus);
+                FinalEnrollStatus finalEnrollStatus = new FinalEnrollStatus(streamResult.getProgress());
+                futureResult.complete(finalEnrollStatus);
             }
         });
     }
@@ -44,18 +45,12 @@ public class EnrollmentProcess implements StreamingProcess {
     /**
      * Returns current status of enrollment during speech streaming.
      * 
-     * If stream is already finished it returns final status immediately.
-     *
      * @return current enrollment status
      */
     public EnrollStatus getCurrentStatus() throws FlowClientException {
-        if (!futureResult.isDone()) {
-            EnrollResultRequest enrollResultRequest = new EnrollResultRequest(initResult.getStatusPath());
-            Call<EnrollStatus> streamCall = new EnrollResultCall(enrollResultRequest);
-            return caller.call(streamCall);
-        }
-
-        return getFinalStatus();
+        EnrollResultRequest enrollResultRequest = new EnrollResultRequest(initResult.getStatusPath());
+        Call<EnrollStatus> streamCall = new EnrollResultCall(enrollResultRequest);
+        return caller.call(streamCall);
     }
 
     /**
@@ -64,7 +59,7 @@ public class EnrollmentProcess implements StreamingProcess {
      *
      * @return final enrollment status
      */
-    public EnrollStatus getFinalStatus() throws FlowClientException {
+    public FinalEnrollStatus getFinalStatus() throws FlowClientException {
         try {
             return futureResult.get();
         } catch (Exception e) {
@@ -77,7 +72,7 @@ public class EnrollmentProcess implements StreamingProcess {
      *
      * @return future of final enrollment status
      */
-    public CompletableFuture<EnrollStatus> getFinalStatusAsync() {
+    public CompletableFuture<FinalEnrollStatus> getFinalStatusAsync() {
         return futureResult;
     }
 

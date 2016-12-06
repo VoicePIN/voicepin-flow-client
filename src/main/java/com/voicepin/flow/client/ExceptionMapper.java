@@ -1,12 +1,14 @@
 package com.voicepin.flow.client;
 
-import com.voicepin.flow.client.exception.AudioTooShortException;
+import com.voicepin.flow.client.exception.IncorrectAudioInputException;
 import com.voicepin.flow.client.exception.FlowServerException;
 import com.voicepin.flow.client.exception.InvalidAudioException;
 import com.voicepin.flow.client.exception.VoiceprintNotEnrolledException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
@@ -15,45 +17,29 @@ import javax.ws.rs.core.Response;
  */
 class ExceptionMapper {
 
-    private final Collection<Definition> definitions = new ArrayList<>();
+    private final Map<Integer, Definition> definitions = new HashMap<>();
 
     ExceptionMapper() {
-
-        definitions.add(code -> {
-            if (code == 430) {
-                throw new InvalidAudioException(code);
-            }
-        });
-
-        definitions.add(code -> {
-            if (code == 431) {
-                throw new AudioTooShortException(code);
-            }
-        });
-
-        definitions.add(code -> {
-            if (code == 420) {
-                throw new VoiceprintNotEnrolledException(code);
-            }
-        });
+        definitions.put(415, IncorrectAudioInputException::new);
+        definitions.put(420, VoiceprintNotEnrolledException::new);
     }
 
     void validate(final Response response) throws FlowServerException {
         final int statusCode = response.getStatus();
 
         if (statusCode != Response.Status.OK.getStatusCode()) {
-            for (final Definition def : definitions) {
-                def.apply(statusCode);
+            Definition definition = definitions.get(statusCode);
+            if (definition != null) {
+                throw definition.apply(statusCode, response.readEntity(String.class));
+            } else {
+                throw new FlowServerException(statusCode, response.readEntity(String.class));
             }
-            throw new FlowServerException(statusCode, response.readEntity(String.class));
         }
     }
 
     @FunctionalInterface
     private interface Definition {
-
-        void apply(int code) throws FlowServerException;
-
+        FlowServerException apply(int code, String message);
     }
 
 }
