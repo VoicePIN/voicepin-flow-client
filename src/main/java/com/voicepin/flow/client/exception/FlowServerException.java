@@ -20,6 +20,4 @@ public class FlowServerException extends FlowClientException {
         return errorMessage;
     }
 
-
-
 }

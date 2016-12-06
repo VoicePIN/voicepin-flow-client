@@ -147,7 +147,7 @@ class FlowClientIT extends Specification {
         result.getProgress() > 100
     }
 
-    def "enrolling with too short audio throws AudioTooShortException"() {
+    def "enrolling with too short audio throws IncorrectAudioInputException"() {
         given:
         def shortEnrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/short_audio.wav"))
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
@@ -163,7 +163,7 @@ class FlowClientIT extends Specification {
         e.getFlowErrorMessage() == "Provided audio was too short for enrollment process"
     }
 
-    def "enrolling with distorted audio throws DistortedException"() {
+    def "enrolling with distorted audio throws IncorrectAudioInputException"() {
         given:
         def shortEnrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1_distorted.wav"))
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
