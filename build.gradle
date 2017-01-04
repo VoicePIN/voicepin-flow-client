@@ -49,10 +49,8 @@ dependencies {
     // jersey
     compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: jerseyVersion
     compile group: 'org.glassfish.jersey.core', name: 'jersey-common', version: jerseyVersion
-    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: jerseyVersion
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: jerseyVersion
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: jerseyVersion
-    compile group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.4.1'
 
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.14'

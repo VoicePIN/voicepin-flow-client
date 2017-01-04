@@ -1,5 +1,7 @@
 package com.voicepin.flow.client
 
+import com.voicepin.flow.client.result.GetConfigurationResult
+
 import java.util.function.Consumer
 
 import org.slf4j.Logger
@@ -27,8 +29,17 @@ class FlowClientIT extends Specification {
     FlowClient client
 
     def setup() {
-        def url = "http://localhost:8081/voicepin-ti-server/v1/"
+        def url = "http://192.168.66.182:8081/voicepin-ti-server/v1/"
         client = FlowClient.newBuilder(url).build()
+    }
+
+    def "retrieves configuration"() {
+        when: "getting configuration"
+        GetConfigurationResult result = client.getConfiguration()
+
+        then: "it contains all the expected fields"
+        print result.getVerificationThreshold()
+        result.getVerificationThreshold() > -100 && result.getVerificationThreshold() < 100
     }
 
     def "voiceprint lifecycle"() {
@@ -206,31 +217,27 @@ class FlowClientIT extends Specification {
         e.getFlowErrorMessage() == "Audio is distorted"
     }
 
-    def "updating enroll with impostor speech return IMPOSTOR audioIssue"() {
-        given:
+    def "updating enroll with impostor speech returns IMPOSTOR audioIssue"() {
+        given: "enrolled voiceprint"
         def enrollStream = new SpeechStream(getClass().getResourceAsStream("/recordings/record_1.wav"))
-        def imposturedStream = new SpeechStream(
-                new DelayedInputStream(getClass().getResourceAsStream("/recordings/impostored.wav")))
+        def impostorEnrollStream = new SpeechStream(
+                new DelayedInputStream(getClass().getResourceAsStream("/recordings/impostor.wav")))
         AddVoiceprintResult addVoiceprintResult = client.addVoiceprint()
         def voiceprintId = addVoiceprintResult.getVoiceprintId()
         EnrollRequest req = new EnrollRequest(voiceprintId, enrollStream)
-
-        when: "enrolling initially with correct stream"
         EnrollmentProcess enrollmentProcess = client.enroll(req)
-        enrollmentProcess.finalStatus
-        then: "inital enroll sucedeed"
-        notThrown(Exception)
+        enrollmentProcess.getFinalStatus()
 
-        when: "performing updatingEnroll with impostored stream"
-        req = new EnrollRequest(voiceprintId, imposturedStream)
+        when: "performing enrollment update with speech of an impostor"
+        req = new EnrollRequest(voiceprintId, impostorEnrollStream)
         enrollmentProcess = client.enroll(req)
-        then: "contains IMPOSTOR flag as audioIssue"
-        boolean impostured = false;
+        then: "audioIssues contain IMPOSTOR flag"
+        boolean flaggedAsImpostor = false;
 
         while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
             EnrollStatus status = enrollmentProcess.getCurrentStatus()
-            if(impostured || status.audioIssues.contains(AudioIssue.IMPOSTOR)){
-                impostured = true;
+            if (flaggedAsImpostor || status.audioIssues.contains(AudioIssue.IMPOSTOR)) {
+                flaggedAsImpostor = true;
                 assert status.audioIssues.contains(AudioIssue.IMPOSTOR)
             }
             LOGGER.info("{}", status)
@@ -238,7 +245,7 @@ class FlowClientIT extends Specification {
         }
 
         when: "trying to return finalStatus"
-        enrollmentProcess.finalStatus
+        enrollmentProcess.getFinalStatus()
         then: "IncorrectAudioInputException is thrown with Impostor"
         FlowServerException e = thrown(IncorrectAudioInputException.class)
         e.getFlowErrorMessage() == "Impostor detected"
