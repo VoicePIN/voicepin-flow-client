@@ -1,10 +1,6 @@
 package com.voicepin.flow.client;
 
-import com.voicepin.flow.client.calls.AddVoiceprintCall;
-import com.voicepin.flow.client.calls.Call;
-import com.voicepin.flow.client.calls.EnrollInitCall;
-import com.voicepin.flow.client.calls.GetVoiceprintCall;
-import com.voicepin.flow.client.calls.VerifyInitCall;
+import com.voicepin.flow.client.calls.*;
 import com.voicepin.flow.client.exception.IncorrectAudioInputException;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
@@ -15,10 +11,7 @@ import com.voicepin.flow.client.request.EnrollRequest;
 import com.voicepin.flow.client.request.GetVoiceprintRequest;
 import com.voicepin.flow.client.request.VerifyInitRequest;
 import com.voicepin.flow.client.request.VerifyRequest;
-import com.voicepin.flow.client.result.AddVoiceprintResult;
-import com.voicepin.flow.client.result.EnrollInitResult;
-import com.voicepin.flow.client.result.GetVoiceprintResult;
-import com.voicepin.flow.client.result.VerifyInitResult;
+import com.voicepin.flow.client.result.*;
 import com.voicepin.flow.client.ssl.AnyCertificateStrategy;
 import com.voicepin.flow.client.ssl.CertificateStrategy;
 import com.voicepin.flow.client.ssl.PinnedCertificateStrategy;
@@ -44,6 +37,17 @@ public class FlowClient {
 
     private FlowClient(FlowClientBuilder builder) {
         this.caller = new Caller(builder);
+    }
+
+    /**
+     * Gets current configuration of VoicePIN Flow server.
+     *
+     * @return configuration of VoicePIN Flow server
+     * @throws FlowClientException
+     */
+    public GetConfigurationResult getConfiguration() throws FlowClientException {
+        Call<GetConfigurationResult> call = new GetConfigurationCall();
+        return caller.call(call);
     }
 
     /**
