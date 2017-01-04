@@ -2,11 +2,8 @@ package com.voicepin.flow.client;
 
 import com.voicepin.flow.client.exception.IncorrectAudioInputException;
 import com.voicepin.flow.client.exception.FlowServerException;
-import com.voicepin.flow.client.exception.InvalidAudioException;
 import com.voicepin.flow.client.exception.VoiceprintNotEnrolledException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
