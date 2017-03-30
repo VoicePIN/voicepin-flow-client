@@ -7,13 +7,15 @@ public class FinalVerifyResult {
 
     private Integer score;
     private String decision;
+    private Integer blacklistScore;
 
     public FinalVerifyResult() {
     }
 
-    public FinalVerifyResult(Integer score, String decision) {
+    public FinalVerifyResult(Integer score, String decision, Integer blacklistScore) {
         this.score = score;
         this.decision = decision;
+        this.blacklistScore = blacklistScore;
     }
 
     public void setScore(Integer score) {
@@ -32,11 +34,20 @@ public class FinalVerifyResult {
         return decision;
     }
 
+    public Integer getBlacklistScore() {
+        return blacklistScore;
+    }
+
+    public void setBlacklistScore(Integer blacklistScore) {
+        this.blacklistScore = blacklistScore;
+    }
+
     @Override
     public String toString() {
         return "FinalVerifyResult{" +
                 "score=" + score +
                 ", decision='" + decision + '\'' +
+                ", blacklistScore='" + blacklistScore + '\'' +
                 '}';
     }
 

@@ -40,7 +40,8 @@ public class VerificationProcess implements StreamingProcess {
                 futureResult.completeExceptionally(getParentException(throwable));
             } else {
                 FinalVerifyResult finalResult = new FinalVerifyResult(streamResult.getScore(),
-                        streamResult.getDecision());
+                        streamResult.getDecision(),
+                        streamResult.getBlacklistScore());
                 futureResult.complete(finalResult);
             }
         });

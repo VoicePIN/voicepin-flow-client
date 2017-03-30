@@ -61,6 +61,7 @@ dependencies {
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.5.1'
 }
 
 task commitHash << {
