@@ -1,5 +1,6 @@
 package com.voicepin.flow.client
 
+import com.voicepin.flow.client.exception.FlowClientException
 import com.voicepin.flow.client.result.GetConfigurationResult
 
 import java.util.function.Consumer
@@ -66,7 +67,7 @@ class FlowClientIT extends Specification {
 
         then: "voiceprint is enrolled"
         LOGGER.info("Getting voiceprint result [{}]", getVoiceprintResult)
-        getVoiceprintResult.getId().equals(voiceprintId)
+        getVoiceprintResult.getId() == voiceprintId
         getVoiceprintResult.isEnrolled()
 
         when: "verifying voiceprint and getting results during streaming"
@@ -79,7 +80,7 @@ class FlowClientIT extends Specification {
         while (!streamClient.finalResultAsync.isDone()) {
             VerifyResult verifyResult = streamClient.getCurrentResult()
             LOGGER.info("Current result {}", verifyResult)
-            Thread.sleep(500);
+            Thread.sleep(500)
         }
 
         FinalVerifyResult finalResult = streamClient.getFinalResult()
@@ -117,7 +118,7 @@ class FlowClientIT extends Specification {
 
             @Override
             void accept(FinalVerifyResult verifyResult) {
-                finalResult = verifyResult;
+                finalResult = verifyResult
             }
         })
 
@@ -145,9 +146,13 @@ class FlowClientIT extends Specification {
         EnrollmentProcess enrollmentProcess = client.enroll(req)
 
         while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
-            EnrollStatus status = enrollmentProcess.getCurrentStatus()
-            Thread.sleep(500)
-            LOGGER.info("{}", status)
+            try {
+                EnrollStatus status = enrollmentProcess.getCurrentStatus()
+                Thread.sleep(500)
+                LOGGER.info("{}", status)
+            } catch (FlowClientException e) {
+                LOGGER.debug("", e)
+            }
         }
         FinalEnrollStatus result = enrollmentProcess.finalStatus
 
@@ -232,12 +237,12 @@ class FlowClientIT extends Specification {
         req = new EnrollRequest(voiceprintId, impostorEnrollStream)
         enrollmentProcess = client.enroll(req)
         then: "audioIssues contain IMPOSTOR flag"
-        boolean flaggedAsImpostor = false;
+        boolean flaggedAsImpostor = false
 
         while (!enrollmentProcess.getFinalStatusAsync().isDone()) {
             EnrollStatus status = enrollmentProcess.getCurrentStatus()
             if (flaggedAsImpostor || status.audioIssues.contains(AudioIssue.IMPOSTOR)) {
-                flaggedAsImpostor = true;
+                flaggedAsImpostor = true
                 assert status.audioIssues.contains(AudioIssue.IMPOSTOR)
             }
             LOGGER.info("{}", status)

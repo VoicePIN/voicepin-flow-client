@@ -7,6 +7,7 @@ public class VerifyStreamResult {
 
     private Integer score;
     private String decision;
+    private Integer blacklistScore;
 
     public VerifyStreamResult() {
     }
@@ -30,5 +31,13 @@ public class VerifyStreamResult {
 
     public void setDecision(String decision) {
         this.decision = decision;
+    }
+
+    public Integer getBlacklistScore() {
+        return blacklistScore;
+    }
+
+    public void setBlacklistScore(Integer blacklistScore) {
+        this.blacklistScore = blacklistScore;
     }
 }

@@ -8,6 +8,7 @@ public class VerifyResult {
     private Integer score;
     private String status;
     private String decision;
+    private Integer blacklistScore;
 
     public VerifyResult() {
     }
@@ -41,12 +42,21 @@ public class VerifyResult {
         this.status = status;
     }
 
+    public Integer getBlacklistScore() {
+        return blacklistScore;
+    }
+
+    public void setBlacklistScore(Integer blacklistScore) {
+        this.blacklistScore = blacklistScore;
+    }
+
     @Override
     public String toString() {
         return "VerifyResult{" +
                 "score=" + score +
                 ", status='" + status + '\'' +
                 ", decision='" + decision + '\'' +
+                ", blacklistScore='" + blacklistScore + '\'' +
                 '}';
     }
 }
