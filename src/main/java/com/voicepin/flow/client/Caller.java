@@ -1,5 +1,9 @@
 package com.voicepin.flow.client;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.voicepin.flow.client.calls.Call;
 import com.voicepin.flow.client.exception.FlowClientException;
 import com.voicepin.flow.client.exception.FlowConnectionException;
@@ -48,6 +52,13 @@ class Caller {
         } else {
             client = ClientBuilder.newClient();
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.registerModule(new JavaTimeModule());
+        JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+        jsonProvider.setMapper(mapper);
+        client.register(jsonProvider);
 
         client.register(MultiPartFeature.class);
         client.property(ClientProperties.READ_TIMEOUT, 100000);

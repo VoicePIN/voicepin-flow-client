@@ -30,7 +30,7 @@ class FlowClientIT extends Specification {
     FlowClient client
 
     def setup() {
-        def url = "http://192.168.66.182:8081/voicepin-ti-server/v1/"
+        def url = "http://localhost:8081/voicepin-ti-server/v1/"
         client = FlowClient.newBuilder(url).build()
     }
 

@@ -1,37 +1,21 @@
-import org.ajoberstar.grgit.Grgit
-
 buildscript {
     repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+        maven { url 'https://nexus.voicepin.com/repository/maven-releases'}
     }
 }
 
 plugins {
     id 'java'
-    id 'idea'
-    id 'groovy'
     id 'maven'
+    id 'groovy'
     id 'pl.allegro.tech.build.axion-release' version '1.4.0'
     id "nebula.project" version "3.3.0"
 }
-
 
 group = 'com.voicepin.flow'
 version = scmVersion.version
 
 apply plugin: 'nebula.integtest-standalone'
-apply plugin: "com.jfrog.artifactory"
-
-jar {
-    manifest {
-        attributes("Specification-Title": "VoicePIN Flow REST Client",
-                "Implementation-Version": version,
-                "Implementation-Revision": getCommitHash())
-    }
-}
 
 ext {
     jerseyVersion = '2.19'
@@ -43,14 +27,15 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.google.guava', name: 'guava', version: '22.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'com.sun.xml.ws', name: 'jaxws-rt', version: '2.2.5'
 
     // jersey
     compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: jerseyVersion
-    compile group: 'org.glassfish.jersey.core', name: 'jersey-common', version: jerseyVersion
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: jerseyVersion
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: jerseyVersion
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.8.9'
 
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.14'
@@ -64,26 +49,12 @@ dependencies {
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.5.1'
 }
 
-task commitHash << {
-    print getCommitHash()
-}
-
-def getCommitHash() {
-    def repo = Grgit.open(project.file('.'))
-    return repo.log(maxCommits: 1).first().id
-}
-
-artifactory {
-    publish {
-        contextUrl = 'http://192.168.66.90:8099/artifactory'
-        repository {
-            repoKey = "libs-release-local"
-            username = voicepinArtifactoryUser
-            password = voicepinArtifactoryPassword
-        }
-        publishIvy = false
-        defaults {
-            publishConfigs('archives')
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'https://nexus.voicepin.com/repository/maven-releases/') {
+                authentication(userName: voicepinNexusUser, password: voicepinNexusPassword)
+            }
         }
     }
 }
