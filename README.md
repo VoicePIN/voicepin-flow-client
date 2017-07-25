@@ -2,6 +2,49 @@
 
 This is java client library for VoicePIN Flow also known as VoicePIN Text-Independent Server.
 
+## Gradle dependency
+
+Add VoicePIN.com Maven repository to `build.gradle`:
+
+    repositories {
+        maven { url 'https://nexus.voicepin.com/repository/maven-releases'}
+    }
+
+Add voicepin-flow-client dependency:
+
+    dependencies {
+        compile 'com.voicepin.flow:voicepin-flow-client:0.1.18'
+    }
+
+## Maven dependency
+
+Add VoicePIN.com Maven repository to `pom.xml`:
+
+    <project>
+        ...
+        <repositories>
+            <repository>
+                <id>VoicePIN.com</id>
+                <url>https://nexus.voicepin.com/repository/maven-releases</url>
+            </repository>
+        </repositories>
+    </project>
+
+Add voicepin-flow-client dependency:
+
+    <project>
+        ...
+        <dependencies>
+            ...
+            <dependency>
+                <groupId>com.voicepin.flow</groupId>
+                <artifactId>voicepin-flow-client</artifactId>
+                <version>0.1.18</version>
+            </dependency>
+        </dependencies>
+    </project>
+
+
 ## **Code examples**
 
 ### Setup
