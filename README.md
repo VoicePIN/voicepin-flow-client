@@ -13,7 +13,7 @@ Add VoicePIN.com Maven repository to `build.gradle`:
 Add voicepin-flow-client dependency:
 
     dependencies {
-        compile 'com.voicepin.flow:voicepin-flow-client:0.1.18'
+        compile 'com.voicepin.flow:voicepin-flow-client:1.0.0'
     }
 
 ## Maven dependency
@@ -39,7 +39,7 @@ Add voicepin-flow-client dependency:
             <dependency>
                 <groupId>com.voicepin.flow</groupId>
                 <artifactId>voicepin-flow-client</artifactId>
-                <version>0.1.18</version>
+                <version>1.0.0</version>
             </dependency>
         </dependencies>
     </project>

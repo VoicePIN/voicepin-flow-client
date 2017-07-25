@@ -8,7 +8,7 @@ plugins {
     id 'java'
     id 'maven'
     id 'groovy'
-    id 'pl.allegro.tech.build.axion-release' version '1.4.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.7.1'
     id "nebula.project" version "3.3.0"
 }
 
